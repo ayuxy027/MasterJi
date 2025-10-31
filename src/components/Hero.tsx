@@ -1,3 +1,6 @@
+import { BsStars } from "react-icons/bs";
+import { PiBookOpenTextBold } from "react-icons/pi";
+
 const Herobox = () => {
     return (
         <div className="bg-white px-4 lg:px-20">
@@ -99,12 +102,20 @@ const Landing = () => {
                 <div className="max-w-7xl my-2 mx-auto">
                     {/* Header Section */}
                     <div className="text-center mb-16 relative z-10">
-                        <span className="inline-block mb-4 px-4 py-2 border-2 text-white border-orange-400 bg-orange-400 rounded-full text-[12px] md:text-sm font-medium">
-                            ✨ | Trusted by 50,000+ students
+                        <span className="inline-flex items-center justify-center gap-2 mb-4 px-4 py-2 border-2 text-white border-orange-400 bg-orange-400 rounded-full text-[12px] md:text-sm font-medium">
+                            <BsStars className="text-sm md:text-base" />
+                            <span>|</span>
+                            <span>Trusted by 500+ students</span>
                         </span>
 
                         <h1 className="text-4xl md:text-7xl tracking-tight  font-semibold text-orange-400 mb-2">
-                            Let's learn New <br /> Courses 📖 & <br /> Grow your Skills
+                            Let's learn New <br /> Courses
+                            <span className="inline-flex items-center mx-3 align-middle">
+                                <span className="inline-flex items-center justify-center border-2 border-orange-400 rounded-full px-4 py-2 md:px-6 md:py-3 transform rotate-6 origin-center">
+                                    <PiBookOpenTextBold className="text-lg md:text-3xl text-orange-400" />
+                                </span>
+                            </span>
+                            & <br /> Grow your Skills
                         </h1>
 
                         <p className="text-gray-800 text-sm md:text-xl max-w-[80%] mt-4 mx-auto px-10 mb-8 leading-relaxed">
