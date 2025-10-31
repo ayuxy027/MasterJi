@@ -21,7 +21,7 @@ const Herobox = () => {
                             {[
                                 "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqkUYrITWyI8OhPNDHoCDUjGjhg8w10_HRqg&s",
                                 "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwQQTS4NPqnCGbJPd4x7O_YJNOJ5gH6KkejH3nhVfIhxwwJPHEotjPs0VCpGg-UcybvxM&usqp=CAU",
-                                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxapDwCeVLL0T69nhwV_BgqH9lztNDYQGhCbUVKHMgITKzGDlPsa55HS-6dqUdC8Qt5VU&usqp=CAU",
+                                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxapDwCeVLL0T69nhwV_BgqH9lztNDYQGcCbUVKHMgITKzGDlPsa55HS-6dqUdC8Qt5VU&usqp=CAU",
                                 "https://www.pathways.health/wp-content/uploads/2023/08/circle-profile-picgfdgaf.jpg",
                             ].map((src, idx) => (
                                 <img
@@ -44,8 +44,7 @@ const Herobox = () => {
                             keep learning, and success will follow.”
                         </p>
                         <div className="mt-4">
-                            <p className="font-semibold text-gray-100">Pooja M.</p>
-                            <p className="text-sm text-gray-100">Quote from our Founder</p>
+                            <p className="font-semibold text-gray-100">Anon</p>
                         </div>
                     </div>
                 </div>

@@ -19,24 +19,24 @@ const Navbar: React.FC = () => {
 
     return (
         <header className="flex items-center justify-between px-6 py-3 md:py-4 shadow-lg max-w-5xl rounded-full mx-auto w-full bg-white/80 backdrop-blur-md border border-orange-200/60">
-            <a href="https://prebuiltui.com">
-                <img src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/dummyLogo/prebuiltuiDummyLogo.svg" alt="PrebuiltUI logo" />
+            <a href="/" className="text-2xl font-bold text-orange-500">
+                MasterJi
             </a>
             <nav
                 ref={menuRef}
                 id="menu"
                 className="max-md:absolute max-md:top-0 max-md:left-0 max-md:overflow-hidden items-center justify-center max-md:h-full max-md:w-0 transition-[width] bg-white/80 backdrop-blur flex-col md:flex-row flex gap-8 text-orange-500 text-sm font-medium"
             >
-                <a className="hover:text-orange-600" href="#">
+                <a className="hover:text-orange-600" href="/products">
                     Products
                 </a>
-                <a className="hover:text-orange-600" href="#">
-                    Customer Stories
+                <a className="hover:text-orange-600" href="/about">
+                    About
                 </a>
-                <a className="hover:text-orange-600" href="#">
-                    Pricing
+                <a className="hover:text-orange-600" href="/challenge">
+                    Challenge
                 </a>
-                <a className="hover:text-orange-600" href="#">
+                <a className="hover:text-orange-600" href="/docs">
                     Docs
                 </a>
                 <button
@@ -82,9 +82,9 @@ const Navbar: React.FC = () => {
                 </button>
                 <a
                     className="hidden md:flex bg-orange-400 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-orange-500 transition-shadow shadow-md"
-                    href="#"
+                    href="/signup"
                 >
-                    Sign up
+                    Join Challenge
                 </a>
                 <button
                     type="button"
