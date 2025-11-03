@@ -3,14 +3,15 @@ import React from 'react';
 interface GenerationResultsProps {
   isGenerating: boolean;
   selectedCategory: string;
+  numImages?: number;  // Optional prop to control number of images
 }
 
-const GenerationResults: React.FC<GenerationResultsProps> = ({ isGenerating, selectedCategory }) => {
-  const mockImages = [
-    { id: 1, url: 'https://placehold.co/400x300/FF6B35/FFFFFF?text=Educational+Poster+1' },
-    { id: 2, url: 'https://placehold.co/400x300/FF6B35/FFFFFF?text=Educational+Poster+2' },
-    { id: 3, url: 'https://placehold.co/400x300/FF6B35/FFFFFF?text=Educational+Poster+3' },
-  ];
+const GenerationResults: React.FC<GenerationResultsProps> = ({ isGenerating, selectedCategory, numImages = 3 }) => {
+  // Generate mock images based on the number requested
+  const mockImages = Array.from({ length: numImages }, (_, index) => ({
+    id: index + 1,
+    url: `https://placehold.co/400x300/FF6B35/FFFFFF?text=Educational+Poster+${index + 1}`,
+  }));
 
   const getSystemFeatures = () => {
     return [
@@ -37,11 +38,18 @@ const GenerationResults: React.FC<GenerationResultsProps> = ({ isGenerating, sel
     ];
   };
 
+  // Determine grid columns based on number of images
+  const getGridClass = () => {
+    if (numImages === 1) return 'grid-cols-1';
+    if (numImages === 2) return 'grid-cols-1 md:grid-cols-2';
+    return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'; // Default for 3 or more
+  };
+
   return (
     <div className="bg-orange-100 rounded-2xl shadow-lg overflow-hidden border border-orange-200">
       <div className="p-6 border-b border-orange-200 bg-white">
         <h3 className="text-xl font-bold text-orange-800">Generated Educational Posters</h3>
-        <p className="text-gray-600">3 poster grid layout for effective learning</p>
+        <p className="text-gray-600">{numImages} poster grid layout for effective learning</p>
       </div>
       
       {isGenerating ? (
@@ -54,7 +62,7 @@ const GenerationResults: React.FC<GenerationResultsProps> = ({ isGenerating, sel
         </div>
       ) : (
         <div className="p-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className={`grid ${getGridClass()} gap-8`}>
             {mockImages.map((image) => (
               <div key={image.id} className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                 <img 

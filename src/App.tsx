@@ -3,7 +3,7 @@ import Layout from "./components/Layout";
 import Landing from "./pages/Landing";
 import AIChatPage from "./components/AIChat/AIChatPage";
 import LMRPage from "./components/LMR/LMRPage";
-import ImageGenPage from "./components/ImageGen/ImageGenPage";
+import PostersPage from "./components/Posters/PostersPage";
 
 const App = () => {
   return (
@@ -23,9 +23,9 @@ const App = () => {
           <LMRPage />
         </Layout>
       } />
-      <Route path="/image-gen" element={
+      <Route path="/posters" element={
         <Layout>
-          <ImageGenPage />
+          <PostersPage />
         </Layout>
       } />
     </Routes>
