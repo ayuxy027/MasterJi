@@ -3,11 +3,9 @@ import Layout from "./components/Layout";
 import Landing from "./pages/Landing";
 
 // Create placeholder components for the new routes
-const ProductsPage = () => <div className="p-8 text-center">Products Page - Coming Soon</div>;
-const AboutPage = () => <div className="p-8 text-center">About Page - Multilingual AI for Indian Education</div>;
-const ChallengePage = () => <div className="p-8 text-center">Challenge Details - Building AI for 22 Indian Languages</div>;
-const DocsPage = () => <div className="p-8 text-center">Documentation Page - Technical Details</div>;
-const SignupPage = () => <div className="p-8 text-center">Join the Challenge - Register Now</div>;
+const ChatPage = () => <div className="p-8 text-center">AI Chat Interface - Study, Plan, and Ideation Modes</div>;
+const LMRPage = () => <div className="p-8 text-center">LMR Tools - Learning Material Resources and Key Questions Provider</div>;
+const ImageGenPage = () => <div className="p-8 text-center">Multilingual Image Generation System - Educational Posters and Visuals</div>;
 
 const App = () => {
   return (
@@ -17,29 +15,19 @@ const App = () => {
           <Landing />
         </Layout>
       } />
-      <Route path="/products" element={
+      <Route path="/chat" element={
         <Layout>
-          <ProductsPage />
+          <ChatPage />
         </Layout>
       } />
-      <Route path="/about" element={
+      <Route path="/lmr" element={
         <Layout>
-          <AboutPage />
+          <LMRPage />
         </Layout>
       } />
-      <Route path="/challenge" element={
+      <Route path="/image-gen" element={
         <Layout>
-          <ChallengePage />
-        </Layout>
-      } />
-      <Route path="/docs" element={
-        <Layout>
-          <DocsPage />
-        </Layout>
-      } />
-      <Route path="/signup" element={
-        <Layout>
-          <SignupPage />
+          <ImageGenPage />
         </Layout>
       } />
     </Routes>
