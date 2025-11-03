@@ -1,5 +1,4 @@
-import { BsStars } from "react-icons/bs";
-import { PiBookOpenTextBold } from "react-icons/pi";
+
 
 const Herobox = () => {
     return (
@@ -103,7 +102,15 @@ const Landing = () => {
                     {/* Header Section */}
                     <div className="text-center mb-16 relative z-10">
                         <span className="inline-flex items-center justify-center gap-2 mb-4 px-4 py-2 border-2 text-white border-orange-400 bg-orange-400 rounded-full text-[12px] md:text-sm font-medium">
-                            <BsStars className="text-sm md:text-base" />
+                            <svg className="text-sm md:text-base w-3 h-3" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 1L10.5 5.5L15.5 6L11.5 9.5L12.5 14.5L8 11.5L3.5 14.5L4.5 9.5L0.5 6L5.5 5.5L8 1Z"/>
+                            </svg>
+                            <svg className="text-sm md:text-base w-3 h-3 -mx-0.5" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 1L10.5 5.5L15.5 6L11.5 9.5L12.5 14.5L8 11.5L3.5 14.5L4.5 9.5L0.5 6L5.5 5.5L8 1Z"/>
+                            </svg>
+                            <svg className="text-sm md:text-base w-3 h-3" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 1L10.5 5.5L15.5 6L11.5 9.5L12.5 14.5L8 11.5L3.5 14.5L4.5 9.5L0.5 6L5.5 5.5L8 1Z"/>
+                            </svg>
                             <span>|</span>
                             <span>Trusted by 500+ students</span>
                         </span>
@@ -112,7 +119,12 @@ const Landing = () => {
                             Let's learn New <br /> Courses
                             <span className="inline-flex items-center mx-3 align-middle">
                                 <span className="inline-flex items-center justify-center border-2 border-orange-400 rounded-full px-4 py-2 md:px-6 md:py-3 transform rotate-6 origin-center">
-                                    <PiBookOpenTextBold className="text-lg md:text-3xl text-orange-400" />
+                                    <svg className="text-lg md:text-3xl text-orange-400 w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8 4c-2.2 0-4 1.8-4 4v16c0 2.2 1.8 4 4 4h16c2.2 0 4-1.8 4-4V8c0-2.2-1.8-4-4-4H8z"/>
+                                    <path d="M8 12h16m-16 4h12m-12 4h8"/>
+                                    <circle cx="24" cy="24" r="4.5" />
+                                    <path d="M24 22v4m-2-2h4" strokeWidth="1.2"/>
+                                </svg>
                                 </span>
                             </span>
                             & <br /> Grow your Skills

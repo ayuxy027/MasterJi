@@ -50,7 +50,7 @@ This document outlines the design principles and component guidelines for the Ma
 ### 5. Visual Elements
 
 #### Icons
-- Use react-icons for consistent iconography
+- Use custom SVG icons for consistent iconography
 - Size: text-lg to text-3xl depending on context
 - Color: Match with text or brand colors
 - Integration: Inline with text or as standalone elements
