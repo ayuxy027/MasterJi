@@ -1,11 +1,9 @@
 import { Routes, Route } from 'react-router-dom';
 import Layout from "./components/Layout";
 import Landing from "./pages/Landing";
-
-// Create placeholder components for the new routes
-const ChatPage = () => <div className="p-8 text-center">AI Chat Interface - Study, Plan, and Ideation Modes</div>;
-const LMRPage = () => <div className="p-8 text-center">LMR Tools - Learning Material Resources and Key Questions Provider</div>;
-const ImageGenPage = () => <div className="p-8 text-center">Multilingual Image Generation System - Educational Posters and Visuals</div>;
+import AIChatPage from "./components/AIChat/AIChatPage";
+import LMRPage from "./components/LMR/LMRPage";
+import ImageGenPage from "./components/ImageGen/ImageGenPage";
 
 const App = () => {
   return (
@@ -17,7 +15,7 @@ const App = () => {
       } />
       <Route path="/chat" element={
         <Layout>
-          <ChatPage />
+          <AIChatPage />
         </Layout>
       } />
       <Route path="/lmr" element={

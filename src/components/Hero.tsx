@@ -1,5 +1,4 @@
 
-
 const Herobox = () => {
     return (
         <div className="bg-white px-4 lg:px-20">
