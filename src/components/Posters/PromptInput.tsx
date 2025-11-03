@@ -6,6 +6,7 @@ interface PromptInputProps {
   isGenerating: boolean;
   setIsGenerating: (generating: boolean) => void;
   selectedCategory: string;
+  setNumImages?: (num: number) => void;  // Optional prop to set number of images in parent
 }
 
 const PromptInput: React.FC<PromptInputProps> = ({ 
@@ -13,15 +14,21 @@ const PromptInput: React.FC<PromptInputProps> = ({
   setPrompt, 
   isGenerating, 
   setIsGenerating,
-  selectedCategory
+  selectedCategory,
+  setNumImages: setParentNumImages
 }) => {
   const [selectedModel, setSelectedModel] = useState('lora');
-  const [numImages, setNumImages] = useState(3);
+  const [numImages, setLocalNumImages] = useState(3);
   const [aspectRatio, setAspectRatio] = useState('1:1');
   const [imageQuality, setImageQuality] = useState('medium');
 
   const handleGenerate = () => {
     if (!prompt.trim()) return;
+    
+    // Update parent if function is provided
+    if (setParentNumImages) {
+      setParentNumImages(numImages);
+    }
     
     setIsGenerating(true);
     
@@ -29,6 +36,15 @@ const PromptInput: React.FC<PromptInputProps> = ({
     setTimeout(() => {
       setIsGenerating(false);
     }, 3000);
+  };
+
+  const handleNumImagesChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = parseInt(e.target.value);
+    setLocalNumImages(value);
+    // Update parent if function is provided
+    if (setParentNumImages) {
+      setParentNumImages(value);
+    }
   };
 
   return (
@@ -67,7 +83,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
           <label className="block text-xs font-medium text-gray-700 mb-1">Number of Images</label>
           <select
             value={numImages}
-            onChange={(e) => setNumImages(parseInt(e.target.value))}
+            onChange={handleNumImagesChange}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-white"
           >
             <option value={1}>1</option>

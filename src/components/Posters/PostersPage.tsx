@@ -33,6 +33,7 @@ const PostersPage: React.FC = () => {
             isGenerating={isGenerating} 
             setIsGenerating={setIsGenerating}
             selectedCategory={selectedCategory}
+            setNumImages={setNumImages}
           />
         </div>
         
