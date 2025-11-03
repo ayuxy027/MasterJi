@@ -11,11 +11,15 @@ const AIChatPage: React.FC = () => {
   ]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-orange-600 mb-2">AI-Powered Learning Assistant</h1>
-          <p className="text-gray-600">Multilingual support for 22+ Indian languages</p>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6 text-center">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+            AI-Powered Learning Assistant
+          </h1>
+          <p className="text-gray-600 text-sm md:text-base">
+            Multilingual support for 22+ Indian languages
+          </p>
         </div>
         
         <ModeSelector currentMode={currentMode} setCurrentMode={setCurrentMode} />

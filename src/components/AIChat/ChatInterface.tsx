@@ -83,27 +83,29 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentMode, messages, se
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
       {/* Chat Header */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-4 text-white">
+      <div className="bg-orange-500 text-white p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-3 h-3 bg-green-400 rounded-full"></div>
             <h3 className="font-semibold">AI Tutor</h3>
           </div>
-          <div className="text-sm opacity-80">Online now</div>
+          <div className="text-xs opacity-90 bg-orange-600 bg-opacity-30 px-3 py-1 rounded-full">
+            {currentMode.charAt(0).toUpperCase() + currentMode.slice(1)} Mode
+          </div>
         </div>
       </div>
       
       {/* Messages Container */}
-      <div className="h-[500px] overflow-y-auto p-4 bg-gray-50">
+      <div className="h-[400px] bg-gray-50 overflow-y-auto p-4">
         {messages.map((message) => (
           <div 
             key={message.id} 
             className={`flex mb-4 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div 
-              className={`max-w-[80%] rounded-2xl p-4 ${
+              className={`max-w-[80%] rounded-xl p-3 ${
                 message.sender === 'user' 
                   ? 'bg-orange-500 text-white rounded-br-none' 
                   : 'bg-white text-gray-800 rounded-bl-none border border-gray-200'
@@ -127,13 +129,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentMode, messages, se
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder={`Ask anything in ${currentMode} mode...`}
-            className="flex-1 border border-gray-300 rounded-xl p-3 resize-none h-12 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            className="flex-1 border border-gray-300 rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             rows={1}
           />
           <button
             onClick={handleSendMessage}
             disabled={!inputValue.trim()}
-            className={`px-6 py-2 rounded-xl font-medium ${
+            className={`px-4 py-2 rounded-lg font-medium ${
               inputValue.trim()
                 ? 'bg-orange-500 text-white hover:bg-orange-600'
                 : 'bg-gray-200 text-gray-500 cursor-not-allowed'
@@ -148,7 +150,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentMode, messages, se
           {getExamplePrompts().map((prompt, index) => (
             <button 
               key={index}
-              className="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full hover:bg-orange-200 transition"
+              className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded hover:bg-orange-200 transition"
               onClick={() => setInputValue(prompt)}
             >
               {prompt}

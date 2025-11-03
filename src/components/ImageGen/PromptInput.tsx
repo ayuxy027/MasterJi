@@ -25,27 +25,32 @@ const PromptInput: React.FC<PromptInputProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Generate Educational Visuals</h2>
+    <div className="bg-orange-100 rounded-2xl shadow-lg p-6 border border-orange-200">
+      <h2 className="text-xl font-semibold text-orange-800 mb-4">Generate Educational Visuals</h2>
       
-      <div className="mb-4">
+      <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">Describe the educational image you want to generate</label>
-        <textarea
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Example: 'Create an educational poster about the solar system with planets labeled in Hindi'"
-          className="w-full border border-gray-300 rounded-xl p-4 resize-none h-32 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-        />
+        <div className="relative">
+          <textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Example: 'Create an educational poster about the solar system with planets labeled in Hindi'"
+            className="w-full border border-orange-300 rounded-xl p-4 resize-none h-32 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent shadow-sm bg-white"
+          />
+          <div className="absolute bottom-3 right-3">
+            <span className="text-xs text-gray-500">{prompt.length}/500</span>
+          </div>
+        </div>
       </div>
       
-      <div className="flex flex-wrap gap-4 items-center">
+      <div className="flex flex-wrap gap-4 items-center justify-between">
         <button
           onClick={handleGenerate}
           disabled={!prompt.trim() || isGenerating}
-          className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 ${
+          className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all transform hover:scale-105 ${
             (!prompt.trim() || isGenerating)
-              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-              : 'bg-teal-500 text-white hover:bg-teal-600'
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-lg'
           }`}
         >
           {isGenerating ? (
@@ -66,8 +71,8 @@ const PromptInput: React.FC<PromptInputProps> = ({
           )}
         </button>
         
-        <div className="text-sm text-gray-600 flex items-center gap-2">
-          <svg className="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <div className="text-sm text-orange-700 flex items-center gap-2 bg-orange-50 p-3 rounded-lg border border-orange-200">
+          <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           Generates 3 contextual images in a grid format

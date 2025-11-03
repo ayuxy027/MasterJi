@@ -7,34 +7,34 @@ interface TabNavigationProps {
 
 const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, setActiveTab }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <div className="bg-gray-50 rounded-lg shadow-sm overflow-hidden border border-gray-200 mb-6">
       <div className="border-b border-gray-200">
         <nav className="flex">
           <button
-            className={`px-6 py-4 font-medium text-sm ${
+            className={`px-4 py-3 text-sm font-medium ${
               activeTab === 'upload' 
-                ? 'text-indigo-600 border-b-2 border-indigo-600' 
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'text-orange-600 border-b-2 border-orange-500' 
+                : 'text-gray-600 hover:text-orange-500'
             }`}
             onClick={() => setActiveTab('upload')}
           >
             Upload
           </button>
           <button
-            className={`px-6 py-4 font-medium text-sm ${
+            className={`px-4 py-3 text-sm font-medium ${
               activeTab === 'materials' 
-                ? 'text-indigo-600 border-b-2 border-indigo-600' 
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'text-orange-600 border-b-2 border-orange-500' 
+                : 'text-gray-600 hover:text-orange-500'
             }`}
             onClick={() => setActiveTab('materials')}
           >
             Learning Materials
           </button>
           <button
-            className={`px-6 py-4 font-medium text-sm ${
+            className={`px-4 py-3 text-sm font-medium ${
               activeTab === 'questions' 
-                ? 'text-indigo-600 border-b-2 border-indigo-600' 
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'text-orange-600 border-b-2 border-orange-500' 
+                : 'text-gray-600 hover:text-orange-500'
             }`}
             onClick={() => setActiveTab('questions')}
           >
