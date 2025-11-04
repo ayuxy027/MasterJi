@@ -36,8 +36,8 @@ const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                                         key={option.id}
                                         onClick={() => onOptionChange?.(option.id)}
                                         className={`group flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 ease-out focus:outline-none ${isActive
-                                                ? 'bg-black/10 text-black shadow-[0_8px_24px_rgba(0,0,0,0.10)]'
-                                                : 'text-black hover:bg-black/5'
+                                                ? 'bg-orange-100 text-orange-600 shadow-[0_8px_24px_rgba(249,115,22,0.15)]'
+                                                : 'text-orange-500 hover:bg-orange-50'
                                             }`}
                                         style={{ transform: isActive ? 'translateY(-1px)' : 'translateY(0px)' }}
                                     >

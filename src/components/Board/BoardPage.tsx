@@ -1,8 +1,10 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DottedBackground, CanvasToolbar, CanvasDock, StickyNote, TextBox } from './index';
 import { getToolById, getEraserCursor, Point, DrawingPath } from './tools';
 import { parseAIResponse, extractSections } from '../../utils/jsonParser';
 import { sendMessage } from '../../services/groqClient';
+import MinimizedNavbar from './MinimizedNavbar';
 
 // Simple word limit function
 const truncateToWords = (text: string, maxWords: number = 40): string => {
@@ -45,8 +47,22 @@ interface TextBox {
   enableMarkdown?: boolean;
 }
 
+interface CanvasSession {
+  drawingPaths: DrawingPath[];
+  stickyNotes: StickyNote[];
+  textBoxes: TextBox[];
+  viewOffset: { x: number; y: number };
+  zoom: number;
+  timestamp: number;
+}
+
+const STORAGE_KEY = 'masterji-board-sessions';
+const CURRENT_SESSION_KEY = 'masterji-board-current';
+
 const BoardPage: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   // State management
   const [isDrawing, setIsDrawing] = useState(false);
@@ -55,7 +71,7 @@ const BoardPage: React.FC = () => {
   const [stickyNotes, setStickyNotes] = useState<StickyNote[]>([]);
   const [textBoxes, setTextBoxes] = useState<TextBox[]>([]);
   const [currentTool, setCurrentTool] = useState('pen');
-  const [currentColor, setCurrentColor] = useState('#000000');
+  const [currentColor, setCurrentColor] = useState('#F97316'); // Orange theme
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [activeToolbarOption, setActiveToolbarOption] = useState('summarise');
 
@@ -64,11 +80,68 @@ const BoardPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
 
+  // Canvas view state (for unlimited scrolling)
+  const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+
+  // Navbar state
+  const [isNavbarExpanded, setIsNavbarExpanded] = useState(false);
+
   // Selection/dragging state for strokes
   const [isDraggingStroke, setIsDraggingStroke] = useState(false);
   const [dragStrokeIndex, setDragStrokeIndex] = useState<number | null>(null);
   const [dragStartPoint, setDragStartPoint] = useState<Point | null>(null);
   const [originalStrokePoints, setOriginalStrokePoints] = useState<Point[] | null>(null);
+
+  // Load session from local storage
+  useEffect(() => {
+    const savedSession = localStorage.getItem(CURRENT_SESSION_KEY);
+    if (savedSession) {
+      try {
+        const session: CanvasSession = JSON.parse(savedSession);
+        setDrawingPaths(session.drawingPaths || []);
+        setStickyNotes(session.stickyNotes || []);
+        setTextBoxes(session.textBoxes || []);
+        setViewOffset(session.viewOffset || { x: 0, y: 0 });
+        setZoom(session.zoom || 1);
+      } catch (error) {
+        console.error('Error loading session:', error);
+      }
+    }
+  }, []);
+
+  // Save session to local storage
+  const saveSession = useCallback(() => {
+    const session: CanvasSession = {
+      drawingPaths,
+      stickyNotes,
+      textBoxes,
+      viewOffset,
+      zoom,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(CURRENT_SESSION_KEY, JSON.stringify(session));
+
+    // Also save to sessions list
+    const sessions = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const existingIndex = sessions.findIndex((s: CanvasSession) => s.timestamp === session.timestamp);
+    if (existingIndex >= 0) {
+      sessions[existingIndex] = session;
+    } else {
+      sessions.push(session);
+    }
+    // Keep only last 10 sessions
+    const recentSessions = sessions.slice(-10);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(recentSessions));
+  }, [drawingPaths, stickyNotes, textBoxes, viewOffset, zoom]);
+
+  // Auto-save every 2 seconds
+  useEffect(() => {
+    const interval = setInterval(saveSession, 2000);
+    return () => clearInterval(interval);
+  }, [saveSession]);
 
   // Calculate adaptive TextBox size
   const calculateTextBoxSize = (text: string) => {
@@ -156,7 +229,7 @@ const BoardPage: React.FC = () => {
 
   // Update streaming TextBoxes
   const updateStreamingTextBoxes = (sections: string[]) => {
-    let currentX = 100;
+    let currentX = 100 + viewOffset.x;
     const cardSpacing = 40;
 
     const newTextBoxes = sections.map((section, index) => {
@@ -166,7 +239,7 @@ const BoardPage: React.FC = () => {
       const textBox = {
         id: `ai-streaming-${index}`,
         x: currentX,
-        y: 150 + (index * 120),
+        y: 150 + viewOffset.y + (index * 120),
         text: fullText,
         color: '#ffffff',
         width,
@@ -194,7 +267,7 @@ const BoardPage: React.FC = () => {
 
   // Create final TextBoxes from completed content
   const createFinalTextBoxes = (sections: string[]): void => {
-    let currentX = 100;
+    let currentX = 100 + viewOffset.x;
     const cardSpacing = 40;
 
     const finalTextBoxes = sections.map((section, index) => {
@@ -204,7 +277,7 @@ const BoardPage: React.FC = () => {
       const textBox = {
         id: `ai-final-${Date.now()}-${index}`,
         x: currentX,
-        y: 150 + (index * 120),
+        y: 150 + viewOffset.y + (index * 120),
         text: fullText,
         color: '#ffffff',
         width,
@@ -240,6 +313,11 @@ const BoardPage: React.FC = () => {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Apply transform for zoom and pan
+    ctx.save();
+    ctx.translate(viewOffset.x, viewOffset.y);
+    ctx.scale(zoom, zoom);
+
     // Redraw all paths
     const paths = drawingPathsRef.current;
     paths.forEach(path => {
@@ -268,7 +346,9 @@ const BoardPage: React.FC = () => {
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = 'source-over';
     });
-  }, []);
+
+    ctx.restore();
+  }, [viewOffset, zoom]);
 
   // Keep latest paths in a ref for stable redraw function
   const drawingPathsRef = useRef<DrawingPath[]>(drawingPaths);
@@ -287,28 +367,47 @@ const BoardPage: React.FC = () => {
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight - 160; // Account for input and dock height
-      redrawCanvas();
+      canvas.height = window.innerHeight;
     };
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
     return () => window.removeEventListener('resize', resizeCanvas);
-  }, [redrawCanvas]);
+  }, []);
+
+  // Handle wheel zoom
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+        setZoom(prev => Math.max(0.1, Math.min(3, prev * delta)));
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, []);
 
   const getMousePos = (e: React.MouseEvent<HTMLCanvasElement>): Point => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
 
     const rect = canvas.getBoundingClientRect();
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    };
+    const x = (e.clientX - rect.left - viewOffset.x) / zoom;
+    const y = (e.clientY - rect.top - viewOffset.y) / zoom;
+    return { x, y };
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    // Handle panning with middle mouse button or space + click
+    if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+      setIsPanning(true);
+      setPanStart({ x: e.clientX - viewOffset.x, y: e.clientY - viewOffset.y });
+      return;
+    }
+
     const point = getMousePos(e);
 
     // Select mode: try to pick a stroke to move
@@ -337,7 +436,7 @@ const BoardPage: React.FC = () => {
         x: point.x,
         y: point.y,
         text: '',
-        color: '#FFE4B5', // Default peach color
+        color: '#FFEDD5', // Orange-100 theme
         width: 250,
         height: 180
       };
@@ -376,6 +475,15 @@ const BoardPage: React.FC = () => {
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    // Handle panning
+    if (isPanning) {
+      setViewOffset({
+        x: e.clientX - panStart.x,
+        y: e.clientY - panStart.y
+      });
+      return;
+    }
+
     // Dragging a stroke in select mode
     if (currentTool === 'select' && isDraggingStroke && dragStrokeIndex !== null && dragStartPoint && originalStrokePoints) {
       const point = getMousePos(e);
@@ -401,6 +509,10 @@ const BoardPage: React.FC = () => {
     const toolConfig = getToolById(currentTool);
     if (!toolConfig) return;
 
+    ctx.save();
+    ctx.translate(viewOffset.x, viewOffset.y);
+    ctx.scale(zoom, zoom);
+
     ctx.beginPath();
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -420,9 +532,16 @@ const BoardPage: React.FC = () => {
     // Reset after incremental draw
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
+    ctx.restore();
   };
 
   const handleMouseUp = () => {
+    // End panning
+    if (isPanning) {
+      setIsPanning(false);
+      return;
+    }
+
     // End stroke dragging if any
     if (isDraggingStroke) {
       setIsDraggingStroke(false);
@@ -504,14 +623,20 @@ const BoardPage: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-gray-50">
-      {/* Dotted Background */}
+    <div className="relative w-full h-screen overflow-hidden bg-gradient-to-b from-orange-50 via-white to-orange-50">
+      {/* Fixed Dotted Background - never zooms */}
       <DottedBackground />
+
+      {/* Minimized Navbar */}
+      <MinimizedNavbar 
+        isExpanded={isNavbarExpanded} 
+        onToggle={() => setIsNavbarExpanded(!isNavbarExpanded)} 
+      />
       
       {/* Subtle selection overlay */}
       {currentTool === 'select' && (
         <div className="absolute inset-0 pointer-events-none z-0"
-          style={{ background: 'linear-gradient(0deg, rgba(59,130,246,0.06), rgba(59,130,246,0.06))' }} />
+          style={{ background: 'linear-gradient(0deg, rgba(249,115,22,0.06), rgba(249,115,22,0.06))' }} />
       )}
 
       {/* Query Input Section */}
@@ -519,19 +644,19 @@ const BoardPage: React.FC = () => {
         <form onSubmit={handleQuerySubmit} className="flex items-center gap-2">
           <div className="relative">
             <div className="rounded-2xl bg-transparent">
-              <div className="rounded-2xl px-4 py-3 backdrop-blur-3xl bg-white/90 shadow-lg border border-gray-200">
+              <div className="rounded-2xl px-4 py-3 backdrop-blur-3xl bg-white/90 shadow-lg border border-orange-200">
                 <input
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Type your query to generate cards..."
-                  className="w-96 px-4 py-2 bg-transparent border-none outline-none text-black placeholder-gray-400"
+                  className="w-96 px-4 py-2 bg-transparent border-none outline-none text-orange-900 placeholder-orange-400"
                   disabled={isLoading}
                 />
                 <button
                   type="submit"
                   disabled={isLoading || !query.trim()}
-                  className="ml-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="ml-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
                 >
                   {isLoading ? 'Generating...' : 'Generate'}
                 </button>
@@ -549,62 +674,89 @@ const BoardPage: React.FC = () => {
         />
       </div>
 
-      {/* Canvas */}
-      <canvas
-        ref={canvasRef}
-        className={`absolute inset-0 ${currentTool === 'select' ? 'cursor-pointer' : 'cursor-crosshair'} z-10`}
+      {/* Canvas Container with transform */}
+      <div
+        ref={containerRef}
+        className="absolute inset-0 z-10"
         style={{
-          top: '120px',
-          bottom: '80px',
-          cursor: currentTool === 'eraser' ? getEraserCursor(strokeWidth) : undefined
+          transform: `translate(${viewOffset.x}px, ${viewOffset.y}px) scale(${zoom})`,
+          transformOrigin: '0 0'
         }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={() => {
-          handleMouseUp();
+      >
+        <canvas
+          ref={canvasRef}
+          className={`absolute inset-0 ${currentTool === 'select' ? 'cursor-pointer' : 'cursor-crosshair'} ${isPanning ? 'cursor-grab' : ''}`}
+          style={{
+            cursor: currentTool === 'eraser' ? getEraserCursor(strokeWidth) : undefined
+          }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={() => {
+            handleMouseUp();
+          }}
+        />
+      </div>
+
+      {/* Sticky Notes - transformed with canvas */}
+      <div
+        className="absolute inset-0 z-20 pointer-events-none"
+        style={{
+          transform: `translate(${viewOffset.x}px, ${viewOffset.y}px) scale(${zoom})`,
+          transformOrigin: '0 0',
+          pointerEvents: currentTool === 'select' ? 'auto' : 'none'
         }}
-      />
+      >
+        {stickyNotes.map(note => (
+          <div key={note.id} style={{ pointerEvents: 'auto' }}>
+            <StickyNote
+              id={note.id}
+              x={note.x}
+              y={note.y}
+              text={note.text}
+              color={note.color}
+              width={note.width}
+              height={note.height}
+              selectionMode={currentTool === 'select'}
+              onUpdate={handleStickyNoteUpdate}
+              onDelete={handleStickyNoteDelete}
+            />
+          </div>
+        ))}
+      </div>
 
-      {/* Sticky Notes */}
-      {stickyNotes.map(note => (
-        <StickyNote
-          key={note.id}
-          id={note.id}
-          x={note.x}
-          y={note.y}
-          text={note.text}
-          color={note.color}
-          width={note.width}
-          height={note.height}
-          selectionMode={currentTool === 'select'}
-          onUpdate={handleStickyNoteUpdate}
-          onDelete={handleStickyNoteDelete}
-        />
-      ))}
-
-      {/* Text Boxes */}
-      {textBoxes.map(textBox => (
-        <TextBox
-          key={textBox.id}
-          id={textBox.id}
-          x={textBox.x}
-          y={textBox.y}
-          text={textBox.text}
-          color={textBox.color}
-          width={textBox.width}
-          height={textBox.height}
-          fontSize={textBox.fontSize}
-          fontFamily={textBox.fontFamily}
-          isBold={textBox.isBold}
-          isItalic={textBox.isItalic}
-          isUnderline={textBox.isUnderline}
-          enableMarkdown={textBox.enableMarkdown}
-          selectionMode={currentTool === 'select'}
-          onUpdate={handleTextBoxUpdate}
-          onDelete={handleTextBoxDelete}
-        />
-      ))}
+      {/* Text Boxes - transformed with canvas */}
+      <div
+        className="absolute inset-0 z-20 pointer-events-none"
+        style={{
+          transform: `translate(${viewOffset.x}px, ${viewOffset.y}px) scale(${zoom})`,
+          transformOrigin: '0 0',
+          pointerEvents: currentTool === 'select' ? 'auto' : 'none'
+        }}
+      >
+        {textBoxes.map(textBox => (
+          <div key={textBox.id} style={{ pointerEvents: 'auto' }}>
+            <TextBox
+              id={textBox.id}
+              x={textBox.x}
+              y={textBox.y}
+              text={textBox.text}
+              color={textBox.color}
+              width={textBox.width}
+              height={textBox.height}
+              fontSize={textBox.fontSize}
+              fontFamily={textBox.fontFamily}
+              isBold={textBox.isBold}
+              isItalic={textBox.isItalic}
+              isUnderline={textBox.isUnderline}
+              enableMarkdown={textBox.enableMarkdown}
+              selectionMode={currentTool === 'select'}
+              onUpdate={handleTextBoxUpdate}
+              onDelete={handleTextBoxDelete}
+            />
+          </div>
+        ))}
+      </div>
 
       {/* Canvas Dock */}
       <CanvasDock
@@ -616,7 +768,7 @@ const BoardPage: React.FC = () => {
         onStrokeWidthChange={handleStrokeWidthChange}
         onUndo={handleUndo}
         onClear={handleClear}
-        sidebarOpen={true}
+        sidebarOpen={!isNavbarExpanded}
       />
     </div>
   );
@@ -643,4 +795,3 @@ function hitTestPath(point: Point, path: DrawingPath): boolean {
   }
   return false;
 }
-

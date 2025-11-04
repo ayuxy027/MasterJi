@@ -81,7 +81,7 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                     <button
                       key={tool.id}
                       onClick={() => onToolChange(tool.id)}
-                      className={`group flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-300 ease-out focus:outline-none ${isActive ? 'bg-black/10 text-black shadow-[0_8px_24px_rgba(0,0,0,0.10)]' : 'text-black hover:bg-black/5'
+                      className={`group flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-300 ease-out focus:outline-none ${isActive ? 'bg-orange-100 text-orange-600 shadow-[0_8px_24px_rgba(249,115,22,0.15)]' : 'text-orange-500 hover:bg-orange-50'
                         }`}
                       title={tool.label}
                       style={{ transform: isActive ? 'translateY(-1px)' : 'translateY(0px)' }}
@@ -96,7 +96,7 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                 <div className="relative" ref={overflowRef}>
                   <button
                     onClick={() => setIsOverflowOpen((v) => !v)}
-                    className="ml-1 flex items-center gap-1 px-3 py-2 rounded-xl text-black hover:bg-black/5 transition-all duration-300"
+                    className="ml-1 flex items-center gap-1 px-3 py-2 rounded-xl text-orange-500 hover:bg-orange-50 transition-all duration-300"
                     title="More tools"
                   >
                     <LuChevronDown size={16} />
@@ -118,7 +118,7 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                                 onToolChange(tool.id);
                                 setIsOverflowOpen(false);
                               }}
-                              className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-all ${isActive ? 'bg-black/10 text-black' : 'text-black hover:bg-black/5'
+                              className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-all ${isActive ? 'bg-orange-100 text-orange-600' : 'text-orange-500 hover:bg-orange-50'
                                 }`}
                               title={tool.label}
                             >
@@ -137,12 +137,12 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
               <div className="flex items-center gap-6">
                 {/* Color Picker */}
                 <div className="flex items-center gap-2">
-                  <LuPalette size={18} className="text-black" />
+                  <LuPalette size={18} className="text-orange-500" />
                   <button
                     type="button"
                     aria-label="Pick color"
                     onClick={() => colorInputRef.current?.click()}
-                    className="w-[18px] h-[18px] rounded-full border border-black/20 cursor-pointer shadow-sm hover:shadow-md transition-shadow"
+                    className="w-[18px] h-[18px] rounded-full border border-orange-300 cursor-pointer shadow-sm hover:shadow-md transition-shadow"
                     style={{ backgroundColor: currentColor }}
                   />
                   <input
@@ -156,16 +156,16 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
 
                 {/* Stroke Width */}
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-black font-medium">Size</span>
+                  <span className="text-sm text-orange-500 font-medium">Size</span>
                   <input
                     type="range"
                     min="1"
                     max="20"
                     value={strokeWidth}
                     onChange={(e) => onStrokeWidthChange(Number(e.target.value))}
-                    className="w-24 accent-black"
+                    className="w-24 accent-orange-500"
                   />
-                  <span className="text-sm text-black w-6 font-semibold tabular-nums">{strokeWidth}</span>
+                  <span className="text-sm text-orange-500 w-6 font-semibold tabular-nums">{strokeWidth}</span>
                 </div>
               </div>
 
@@ -173,7 +173,7 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={onUndo}
-                  className="flex items-center gap-2 px-3 py-2 text-black hover:bg-black/5 rounded-xl transition-all duration-300"
+                  className="flex items-center gap-2 px-3 py-2 text-orange-500 hover:bg-orange-50 rounded-xl transition-all duration-300"
                   title="Undo"
                 >
                   <LuRotateCcw size={16} />
@@ -181,7 +181,7 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                 </button>
                 <button
                   onClick={onClear}
-                  className="flex items-center gap-2 px-3 py-2 text-black hover:bg-black/5 rounded-xl transition-all duration-300"
+                  className="flex items-center gap-2 px-3 py-2 text-orange-500 hover:bg-orange-50 rounded-xl transition-all duration-300"
                   title="Clear Canvas"
                 >
                   <LuTrash2 size={16} />

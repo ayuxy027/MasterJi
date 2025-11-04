@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import Pattern from "../design/Pattern";
 
@@ -7,6 +8,14 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
+    const location = useLocation();
+    const isBoardPage = location.pathname === '/board';
+
+    // Don't render regular layout for board page (it has its own minimized navbar)
+    if (isBoardPage) {
+        return <>{children}</>;
+    }
+
     return (
         <div className="text-gray-900">
             {/* Pattern background only for navbar and hero section */}
