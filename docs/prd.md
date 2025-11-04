@@ -108,6 +108,16 @@ MasterJi is an advanced multilingual educational platform that leverages AI to p
 - Speech-to-text in regional languages
 - Handwriting recognition for mathematical equations
 
+### Whiteboard Feature (AI-Enhanced Canvas)
+- Interactive canvas interface for students to practice math problems and take notes
+- Figma/Excalidraw-like interface with pen, pencil, eraser, and sticky notes functionality
+- Real-time AI monitoring of canvas for contextual recommendations and operations
+- Multilingual support for text annotations and feedback
+- Handwriting recognition for mathematical equations and text conversion
+- Voice commands for canvas operations
+- Collaborative features for group learning
+- Offline support for continued learning without internet connectivity
+
 ## Success Metrics
 
 ### Performance

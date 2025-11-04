@@ -116,3 +116,6 @@ coverage/
 *.apk
 *.aab
 *.keystore
+
+# Admin 
+admin/

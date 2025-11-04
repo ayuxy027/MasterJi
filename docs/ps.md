@@ -61,3 +61,4 @@ Develop a compact multilingual Large Language Model (1–2 billion parameters) t
 - **Multi-Speaker Classroom Management** - Handle multiple student voices simultaneously in group learning scenarios
 - **Emotional Voice Response** - Bot responds to student emotional cues detected through voice tone and adjusts teaching approach accordingly
 - **Voice-Based Content Creation** - Teachers can create new lessons by speaking to the bot, which then generates appropriate visual and interactive content
+- **AI-Enhanced Digital Whiteboard** - Interactive canvas interface where students can practice math problems and take notes with real-time AI assistance, handwriting recognition, and contextual recommendations
