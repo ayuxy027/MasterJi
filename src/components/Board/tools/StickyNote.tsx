@@ -1,0 +1,273 @@
+import React, { useState, useRef } from 'react';
+import { LuSettings } from 'react-icons/lu';
+import MarkdownRenderer from '../../ui/MarkdownRenderer';
+
+interface StickyNoteProps {
+  id: string;
+  x: number;
+  y: number;
+  text: string;
+  color: string;
+  width: number;
+  height: number;
+  enableMarkdown?: boolean;
+  selectionMode?: boolean;
+  onUpdate: (id: string, updates: Partial<StickyNoteProps>) => void;
+  onDelete: (id: string) => void;
+}
+
+const StickyNote: React.FC<StickyNoteProps> = ({
+  id,
+  x,
+  y,
+  text,
+  color,
+  width,
+  height,
+  enableMarkdown = false,
+  selectionMode = false,
+  onUpdate,
+  onDelete
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  const noteRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Simple color options
+  const colors = [
+    '#FFE4B5', // peach
+    '#FFB6C1', // light pink
+    '#F0E68C', // khaki
+    '#98FB98', // pale green
+    '#87CEEB', // sky blue
+    '#DDA0DD', // plum
+    '#F5DEB3', // wheat
+    '#E6E6FA', // lavender
+  ];
+
+  // Simple drag handling
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!selectionMode) return;
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - x, y: e.clientY - y });
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) return;
+    const newX = e.clientX - dragStart.x;
+    const newY = e.clientY - dragStart.y;
+    onUpdate(id, { x: newX, y: newY });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Simple resize handling
+  const handleResizeStart = (e: React.MouseEvent) => {
+    if (!selectionMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+  };
+
+  const handleResizeMove = (e: MouseEvent) => {
+    if (!isResizing) return;
+    const rect = noteRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const newWidth = Math.max(150, e.clientX - rect.left);
+    const newHeight = Math.max(100, e.clientY - rect.top);
+    onUpdate(id, { width: newWidth, height: newHeight });
+  };
+
+  const handleResizeEnd = () => {
+    setIsResizing(false);
+  };
+
+  // Simple text editing
+  const handleClick = () => {
+    if (selectionMode) return;
+    setIsEditing(true);
+    setTimeout(() => textareaRef.current?.focus(), 0);
+  };
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onUpdate(id, { text: e.target.value });
+  };
+
+  const handleTextBlur = () => setIsEditing(false);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') setIsEditing(false);
+  };
+
+  // Simple settings
+  const handleSettingsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowSettings(!showSettings);
+  };
+
+  const handleClickOutside = (e: MouseEvent) => {
+    if (noteRef.current && !noteRef.current.contains(e.target as Node)) {
+      setShowSettings(false);
+    }
+  };
+
+  // Simple event listeners
+  React.useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStart.x, dragStart.y, id, onUpdate]);
+
+  React.useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mouseup', handleResizeEnd);
+      return () => {
+        document.removeEventListener('mousemove', handleResizeMove);
+        document.removeEventListener('mouseup', handleResizeEnd);
+      };
+    }
+  }, [isResizing, id, onUpdate]);
+
+  React.useEffect(() => {
+    if (showSettings) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showSettings]);
+
+  return (
+    <div
+      ref={noteRef}
+      className={`absolute select-none ${selectionMode ? 'cursor-move' : ''}`}
+      style={{ left: x, top: y, width, height, zIndex: 20 }}
+      onMouseDown={handleMouseDown}
+    >
+      {/* Settings Button */}
+      {selectionMode && (
+        <button
+          className="absolute -top-2 -right-2 w-6 h-6 bg-white rounded-full shadow-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 z-30"
+          onClick={handleSettingsClick}
+          title="Settings"
+        >
+          <LuSettings size={12} className="text-gray-600" />
+        </button>
+      )}
+
+      {/* Settings Panel */}
+      {showSettings && (
+        <div className="absolute top-8 right-0 bg-white rounded-md shadow-lg p-3 border border-gray-200 min-w-[150px]" style={{ zIndex: 99999 }}>
+          <div className="space-y-2">
+            {/* Color Picker */}
+            <div>
+              <label className="block text-xs text-gray-700 mb-1">Color</label>
+              <div className="grid grid-cols-4 gap-1">
+                {colors.map((colorOption) => (
+                  <button
+                    key={colorOption}
+                    className={`w-6 h-6 rounded-full border ${color === colorOption ? 'border-gray-700' : 'border-gray-200'}`}
+                    style={{ backgroundColor: colorOption }}
+                    onClick={() => onUpdate(id, { color: colorOption })}
+                    title={colorOption}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Delete */}
+            <button
+              className="w-full text-xs text-red-600 hover:bg-red-50 px-2 py-1 rounded"
+              onClick={() => {
+                if (window.confirm('Delete this note?')) {
+                  onDelete(id);
+                }
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Content */}
+      <div
+        className="relative p-4 h-full cursor-text rounded-lg"
+        style={{
+          backgroundColor: color,
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+          border: '1px solid rgba(0, 0, 0, 0.06)'
+        }}
+        onClick={handleClick}
+        onMouseDown={handleMouseDown}
+      >
+        {isEditing ? (
+          <textarea
+            ref={textareaRef}
+            value={text}
+            onChange={handleTextChange}
+            onBlur={handleTextBlur}
+            onKeyDown={handleKeyDown}
+            className="w-full h-full bg-transparent border-none outline-none resize-none"
+            style={{
+              fontFamily: 'Inter',
+              fontSize: '14px',
+              lineHeight: '1.5',
+              color: '#2c3e50'
+            }}
+            placeholder="Enter note here..."
+          />
+        ) : (
+          <div className="w-full h-full">
+            {enableMarkdown ? (
+              <MarkdownRenderer
+                content={text || 'Enter Text or Generate with AI...'}
+                fontFamily="Inter"
+                fontSize={14}
+                color={text ? '#2c3e50' : 'rgba(44,62,80,0.35)'}
+              />
+            ) : (
+              <div
+                style={{
+                  fontFamily: 'Inter',
+                  fontSize: '14px',
+                  lineHeight: '1.5',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  color: '#2c3e50'
+                }}
+              >
+                {text || <span style={{ color: 'rgba(44,62,80,0.35)' }}>Enter Text or Generate with AI...</span>}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Resize Handle */}
+      {selectionMode && (
+        <div
+          className="absolute bottom-0 right-0 w-6 h-6 cursor-se-resize"
+          onMouseDown={handleResizeStart}
+        >
+          <div className="absolute bottom-1 right-1 w-3 h-3 border-r-2 border-b-2 border-gray-600 rounded-br-sm bg-white/60" />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default StickyNote;
+

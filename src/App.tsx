@@ -4,6 +4,7 @@ import Landing from "./pages/Landing";
 import AIChatPage from "./components/AIChat/AIChatPage";
 import LMRPage from "./components/LMR/LMRPage";
 import PostersPage from "./components/Posters/PostersPage";
+import BoardPage from "./components/Board/BoardPage";
 
 const App = () => {
   return (
@@ -26,6 +27,11 @@ const App = () => {
       <Route path="/posters" element={
         <Layout>
           <PostersPage />
+        </Layout>
+      } />
+      <Route path="/board" element={
+        <Layout>
+          <BoardPage />
         </Layout>
       } />
     </Routes>
