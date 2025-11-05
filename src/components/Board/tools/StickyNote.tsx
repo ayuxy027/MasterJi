@@ -12,6 +12,7 @@ interface StickyNoteProps {
   height: number;
   enableMarkdown?: boolean;
   selectionMode?: boolean;
+  ruled?: boolean;
   onUpdate: (id: string, updates: Partial<StickyNoteProps>) => void;
   onDelete: (id: string) => void;
 }
@@ -26,6 +27,7 @@ const StickyNote: React.FC<StickyNoteProps> = ({
   height,
   enableMarkdown = false,
   selectionMode = false,
+  ruled = false,
   onUpdate,
   onDelete
 }) => {
@@ -187,6 +189,26 @@ const StickyNote: React.FC<StickyNoteProps> = ({
               </div>
             </div>
 
+            {/* Ruled Lines Toggle */}
+            <div>
+              <label className="flex items-center justify-between text-xs text-gray-700 mb-1">
+                <span>Ruled Lines</span>
+                <button
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                    ruled ? 'bg-orange-500' : 'bg-gray-300'
+                  }`}
+                  onClick={() => onUpdate(id, { ruled: !ruled })}
+                  title={ruled ? 'Disable ruled lines' : 'Enable ruled lines'}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      ruled ? 'translate-x-4' : 'translate-x-0.5'
+                    }`}
+                  />
+                </button>
+              </label>
+            </div>
+
             {/* Delete */}
             <button
               className="w-full text-xs text-red-600 hover:bg-red-50 px-2 py-1 rounded"
@@ -204,11 +226,21 @@ const StickyNote: React.FC<StickyNoteProps> = ({
 
       {/* Content */}
       <div
-        className="relative p-4 h-full cursor-text rounded-lg"
+        className="relative p-4 h-full cursor-text rounded-lg overflow-hidden"
         style={{
           backgroundColor: color,
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
-          border: '1px solid rgba(0, 0, 0, 0.06)'
+          border: '1px solid rgba(0, 0, 0, 0.06)',
+          backgroundImage: ruled
+            ? `repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 21px,
+                rgba(0, 0, 0, 0.08) 21px,
+                rgba(0, 0, 0, 0.08) 22px
+              )`
+            : 'none',
+          backgroundPosition: ruled ? '0 4px' : '0 0'
         }}
         onClick={handleClick}
         onMouseDown={handleMouseDown}

@@ -28,6 +28,7 @@ interface StickyNote {
   color: string;
   width: number;
   height: number;
+  ruled?: boolean;
 }
 
 interface TextBox {
@@ -376,7 +377,8 @@ const BoardPage: React.FC = () => {
         text: '',
         color: '#FFEDD5', // Orange-100 theme
         width: 220,
-        height: 160
+        height: 160,
+        ruled: false
       };
       setStickyNotes(prev => [...prev, newNote]);
       // Switch back to pen tool after placing a sticky note
@@ -647,6 +649,7 @@ const BoardPage: React.FC = () => {
               color={note.color}
               width={note.width}
               height={note.height}
+              ruled={note.ruled}
               selectionMode={currentTool === 'select'}
               onUpdate={handleStickyNoteUpdate}
               onDelete={handleStickyNoteDelete}
