@@ -1,7 +1,6 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { HiOutlineCursorClick } from 'react-icons/hi';
-import { TiPen } from 'react-icons/ti';
-import { LuPencil, LuPalette, LuRotateCcw, LuTrash2, LuStamp, LuGrid3X3, LuEraser, LuChevronDown, LuSparkles } from 'react-icons/lu';
+import { LuPencil, LuPalette, LuRotateCcw, LuTrash2, LuEraser, LuChevronDown, LuSparkles } from 'react-icons/lu';
 import { MdOutlineEventNote } from 'react-icons/md';
 import { IoText } from 'react-icons/io5';
 import { Bot, X, List, Target, GitBranch, Layers } from 'lucide-react';
@@ -69,8 +68,7 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
   const primaryTools = useMemo(
     () => [
       { id: 'select', icon: HiOutlineCursorClick, label: 'Select' },
-      { id: 'pen', icon: TiPen, label: 'Pen' },
-      { id: 'pencil', icon: LuPencil, label: 'Pencil' },
+      { id: 'pen', icon: LuPencil, label: 'Pen' },
       { id: 'eraser', icon: LuEraser, label: 'Eraser' },
       { id: 'sticky-note', icon: MdOutlineEventNote, label: 'Note' },
       { id: 'text', icon: IoText, label: 'Text' }
@@ -80,8 +78,6 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
 
   const overflowTools = useMemo(
     () => [
-      { id: 'stamp', icon: LuStamp, label: 'Stamp' },
-      { id: 'grid', icon: LuGrid3X3, label: 'Grid' },
       { id: 'query', icon: Bot, label: 'Generate', action: 'query' },
       { id: 'toolbar', icon: LuSparkles, label: 'Modes', action: 'toolbar' }
     ],

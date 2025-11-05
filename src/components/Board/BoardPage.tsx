@@ -61,6 +61,9 @@ const BoardPage: React.FC = () => {
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [activeToolbarOption, setActiveToolbarOption] = useState('summarise');
 
+  // Ref to track last drawing point for smooth live drawing
+  const lastDrawingPointRef = useRef<Point | null>(null);
+
   // Query input state
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -403,9 +406,10 @@ const BoardPage: React.FC = () => {
       return;
     }
 
-    if (['pen', 'pencil', 'eraser'].includes(currentTool)) {
+    if (['pen', 'eraser'].includes(currentTool)) {
       setIsDrawing(true);
       setCurrentPath([point]);
+      lastDrawingPointRef.current = point;
     }
   };
 
@@ -434,12 +438,16 @@ const BoardPage: React.FC = () => {
       return;
     }
 
-    if (!isDrawing || !['pen', 'pencil', 'eraser'].includes(currentTool)) return;
+    if (!isDrawing || !['pen', 'eraser'].includes(currentTool)) return;
 
     const point = getMousePos(e);
-    setCurrentPath(prev => [...prev, point]);
+    const lastPoint = lastDrawingPointRef.current;
 
-    // Draw current stroke - NO transform needed since points are already in canvas space
+    // Update state for path tracking
+    setCurrentPath(prev => [...prev, point]);
+    lastDrawingPointRef.current = point;
+
+    // Draw current stroke smoothly
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -464,12 +472,17 @@ const BoardPage: React.FC = () => {
     ctx.lineWidth = toolConfig.getStrokeWidth(strokeWidth);
     ctx.globalAlpha = toolConfig.getAlpha();
 
-    if (currentPath.length > 0) {
-      const lastPoint = currentPath[currentPath.length - 1];
+    // Draw from last point to current point for smooth continuous line
+    if (lastPoint) {
       ctx.moveTo(lastPoint.x, lastPoint.y);
       ctx.lineTo(point.x, point.y);
       ctx.stroke();
+    } else {
+      // First point - draw a small dot
+      ctx.arc(point.x, point.y, toolConfig.getStrokeWidth(strokeWidth) / 2, 0, Math.PI * 2);
+      ctx.fill();
     }
+
     // Reset after incremental draw
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
@@ -496,6 +509,7 @@ const BoardPage: React.FC = () => {
     if (!isDrawing) return;
 
     setIsDrawing(false);
+    lastDrawingPointRef.current = null;
 
     if (currentPath.length > 1) {
       const toolConfig = getToolById(currentTool);
@@ -509,10 +523,16 @@ const BoardPage: React.FC = () => {
       };
 
       setDrawingPaths(prev => [...prev, newPath]);
-      redrawCanvas(); // Redraw after adding the new path
+      setCurrentPath([]);
+      // Redraw canvas to ensure final path is rendered correctly
+      redrawCanvas();
+    } else if (currentPath.length === 1) {
+      // Single point - clear it
+      setCurrentPath([]);
+      redrawCanvas();
+    } else {
+      setCurrentPath([]);
     }
-
-    setCurrentPath([]);
   };
 
   const handleToolChange = (tool: string) => {

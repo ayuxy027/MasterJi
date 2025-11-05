@@ -1,8 +1,8 @@
 import { Tool } from './types';
 
-export const PencilTool: Tool = {
-    id: 'pencil',
-    name: 'Pencil',
+export const PenTool: Tool = {
+    id: 'pen',
+    name: 'Pen',
     cursor: 'crosshair',
     getStrokeWidth: (baseWidth: number) => Math.max(1, baseWidth * 0.5),
     getStrokeStyle: (color: string) => color,
