@@ -1,25 +1,19 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DottedBackground, CanvasToolbar, CanvasDock, StickyNote, TextBox } from './index';
-import { getToolById, getEraserCursor, Point, DrawingPath } from './tools';
-import { parseAIResponse, extractSections } from '../../utils/jsonParser';
-import { sendMessage } from '../../services/groqClient';
-import MinimizedNavbar from './MinimizedNavbar';
+import { ArrowLeft } from 'lucide-react';
+import { DottedBackground, CanvasToolbar, CanvasDock } from '../components/Board';
 
-// Simple word limit function
-const truncateToWords = (text: string, maxWords: number = 40): string => {
-  const words = text.split(/\s+/);
-  if (words.length <= maxWords) return text;
-  return words.slice(0, maxWords).join(' ') + '...';
-};
+interface Point {
+  x: number;
+  y: number;
+}
 
-// Clean up excessive whitespace
-const cleanWhitespace = (text: string): string => {
-  return text
-    .replace(/\n\s*\n/g, '\n') // Remove multiple consecutive line breaks
-    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-    .trim();
-};
+interface DrawingPath {
+  points: Point[];
+  color: string;
+  strokeWidth: number;
+  tool: string;
+}
 
 interface StickyNote {
   id: string;
@@ -47,19 +41,11 @@ interface TextBox {
   enableMarkdown?: boolean;
 }
 
-interface CanvasSession {
-  drawingPaths: DrawingPath[];
-  stickyNotes: StickyNote[];
-  textBoxes: TextBox[];
-  viewOffset: { x: number; y: number };
-  zoom: number;
-  timestamp: number;
+interface BoardPageProps {
+  sidebarOpen: boolean;
 }
 
-const STORAGE_KEY = 'masterji-board-sessions';
-const CURRENT_SESSION_KEY = 'masterji-board-current';
-
-const BoardPage: React.FC = () => {
+const BoardPage: React.FC<BoardPageProps> = ({ sidebarOpen }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -78,14 +64,11 @@ const BoardPage: React.FC = () => {
   // Query input state
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  // Commenting out streamingContent as it's not being used
-  // const [streamingContent, setStreamingContent] = useState('');
 
   // Canvas view state (for unlimited scrolling)
   const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [isPanning, setIsPanning] = useState(false);
-  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
 
   // Navbar state
   const [isNavbarExpanded, setIsNavbarExpanded] = useState(false);
@@ -96,25 +79,7 @@ const BoardPage: React.FC = () => {
   const [dragStartPoint, setDragStartPoint] = useState<Point | null>(null);
   const [originalStrokePoints, setOriginalStrokePoints] = useState<Point[] | null>(null);
 
-  // Load session from local storage
-  useEffect(() => {
-    // Commenting out session loading as these constants don't exist in this scope
-    // const savedSession = localStorage.getItem(CURRENT_SESSION_KEY);
-    // if (savedSession) {
-    //   try {
-    //     const session: CanvasSession = JSON.parse(savedSession);
-    //     setDrawingPaths(session.drawingPaths || []);
-    //     setStickyNotes(session.stickyNotes || []);
-    //     setTextBoxes(session.textBoxes || []);
-    //     setViewOffset(session.viewOffset || { x: 0, y: 0 });
-    //     setZoom(session.zoom || 1);
-    //   } catch (error) {
-    //     console.error('Error loading session:', error);
-    //   }
-    // }
-  }, []);
-
-  // Calculate word count (kept for reference)
+  // Calculate word count
   const getWordCount = (text: string): number => {
     return text.trim().split(/\s+/).filter(Boolean).length;
   };
@@ -124,158 +89,30 @@ const BoardPage: React.FC = () => {
     const wordCount = getWordCount(text);
     const charCount = text.length;
 
-    // Base dimensions - smaller for better fit
-    let width = 300;
-    let height = 180;
+    // Base dimensions
+    let width = 350;
+    let height = 200;
 
     // Adjust based on content length
     if (wordCount > 50 || charCount > 300) {
-      width = 420;
-      height = 260;
+      width = 500;
+      height = 300;
     } else if (wordCount > 30 || charCount > 200) {
-      width = 380;
-      height = 220;
+      width = 450;
+      height = 250;
     } else if (wordCount > 20 || charCount > 150) {
-      width = 340;
-      height = 200;
+      width = 400;
+      height = 220;
     } else if (wordCount > 10 || charCount > 100) {
-      width = 320;
-      height = 180;
+      width = 380;
+      height = 200;
     }
 
     // Ensure minimum size
-    width = Math.max(width, 280);
-    height = Math.max(height, 160);
+    width = Math.max(width, 300);
+    height = Math.max(height, 150);
 
     return { width, height };
-  };
-
-  // Handle query submission
-  const handleQuerySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim() || isLoading) return;
-
-    setIsLoading(true);
-    setStreamingContent('');
-    
-    // Clear previous streaming cards
-    setTextBoxes(prev => prev.filter(tb => !tb.id.startsWith('ai-streaming-') && !tb.id.startsWith('ai-final-')));
-
-    try {
-      let accumulatedContent = '';
-      
-      await sendMessage(query, (chunk: string) => {
-        accumulatedContent += chunk;
-        setStreamingContent(accumulatedContent);
-        
-        // Update cards in real-time
-        try {
-          const sections = parseStreamingContent(accumulatedContent);
-          updateStreamingTextBoxes(sections);
-        } catch (error) {
-          console.error('Error parsing streaming content:', error);
-        }
-      });
-
-      // Final update with complete content
-      const finalSections = parseStreamingContent(accumulatedContent);
-      createFinalTextBoxes(finalSections);
-      
-      setStreamingContent('');
-      setQuery('');
-    } catch (error) {
-      console.error('Error generating cards:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Parse streaming content into JSON sections
-  const parseStreamingContent = (content: string): string[] => {
-    try {
-      const aiResponse = parseAIResponse(content, query);
-      return extractSections(aiResponse);
-    } catch (error) {
-      console.error('Error parsing streaming content:', error);
-      // Fallback to basic text parsing if JSON fails
-      const sections = content.split('\n\n').filter(section => section.trim().length > 0);
-      return sections.slice(0, 3);
-    }
-  };
-
-  // Update streaming TextBoxes
-  const updateStreamingTextBoxes = (sections: string[]) => {
-    let currentX = 100 + viewOffset.x;
-    const cardSpacing = 40;
-
-    const newTextBoxes = sections.map((section, index) => {
-      const fullText = truncateToWords(cleanWhitespace(section));
-      const { width, height } = calculateTextBoxSize(fullText);
-
-      const textBox = {
-        id: `ai-streaming-${index}`,
-        x: currentX,
-        y: 150 + viewOffset.y + (index * 120),
-        text: fullText,
-        color: '#ffffff',
-        width,
-        height,
-        fontSize: 16,
-        fontFamily: 'Inter',
-        isBold: false,
-        isItalic: false,
-        isUnderline: false,
-        enableMarkdown: true,
-      };
-
-      // Update position for next card
-      currentX += width + cardSpacing;
-
-      return textBox;
-    });
-
-    setTextBoxes(prev => {
-      // Remove existing streaming TextBoxes
-      const filtered = prev.filter(tb => !tb.id.startsWith('ai-streaming-'));
-      return [...filtered, ...newTextBoxes];
-    });
-  };
-
-  // Create final TextBoxes from completed content
-  const createFinalTextBoxes = (sections: string[]): void => {
-    let currentX = 100 + viewOffset.x;
-    const cardSpacing = 40;
-
-    const finalTextBoxes = sections.map((section, index) => {
-      const fullText = truncateToWords(cleanWhitespace(section));
-      const { width, height } = calculateTextBoxSize(fullText);
-
-      const textBox = {
-        id: `ai-final-${Date.now()}-${index}`,
-        x: currentX,
-        y: 150 + viewOffset.y + (index * 120),
-        text: fullText,
-        color: '#ffffff',
-        width,
-        height,
-        fontSize: 16,
-        fontFamily: 'Inter',
-        isBold: false,
-        isItalic: false,
-        isUnderline: false,
-        enableMarkdown: true,
-      };
-
-      // Update position for next card
-      currentX += width + cardSpacing;
-
-      return textBox;
-    });
-
-    setTextBoxes(prev => {
-      const filtered = prev.filter(tb => !tb.id.startsWith('ai-streaming-') && !tb.id.startsWith('ai-final-'));
-      return [...filtered, ...finalTextBoxes];
-    });
   };
 
   // Define redrawCanvas before any usage to avoid TDZ
@@ -298,18 +135,15 @@ const BoardPage: React.FC = () => {
     drawingPaths.forEach(path => {
       if (path.points.length < 2) return;
 
-      const toolConfig = getToolById(path.tool);
-      if (!toolConfig) return;
-
       ctx.beginPath();
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
       // Apply tool-specific styles
-      ctx.globalCompositeOperation = toolConfig.getCompositeOperation();
-      ctx.strokeStyle = toolConfig.getStrokeStyle(path.color);
-      ctx.lineWidth = toolConfig.getStrokeWidth(path.strokeWidth);
-      ctx.globalAlpha = toolConfig.getAlpha();
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = path.color;
+      ctx.lineWidth = path.strokeWidth;
+      ctx.globalAlpha = 1;
 
       ctx.moveTo(path.points[0].x, path.points[0].y);
       path.points.forEach(point => {
@@ -317,9 +151,6 @@ const BoardPage: React.FC = () => {
       });
 
       ctx.stroke();
-      // Reset drawing state
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = 'source-over';
     });
 
     ctx.restore();
@@ -351,24 +182,13 @@ const BoardPage: React.FC = () => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
 
-    // Get canvas bounding rect (already accounts for container transform visually)
     const rect = canvas.getBoundingClientRect();
-    // Convert screen coordinates to canvas coordinates
-    // The container has CSS transform, so rect already accounts for viewOffset
-    // We just need to convert from screen space (with zoom) to canvas space
-    const x = (e.clientX - rect.left) / zoom;
-    const y = (e.clientY - rect.top) / zoom;
+    const x = (e.clientX - rect.left - viewOffset.x) / zoom;
+    const y = (e.clientY - rect.top - viewOffset.y) / zoom;
     return { x, y };
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    // Handle panning with middle mouse button or shift + click
-    if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
-      setIsPanning(true);
-      setPanStart({ x: e.clientX - viewOffset.x, y: e.clientY - viewOffset.y });
-      return;
-    }
-
     const point = getMousePos(e);
 
     // Select mode: try to pick a stroke to move
@@ -379,6 +199,7 @@ const BoardPage: React.FC = () => {
           setDragStrokeIndex(i);
           setDragStartPoint(point);
           setOriginalStrokePoints(drawingPaths[i].points.map(p => ({ x: p.x, y: p.y })));
+          redrawCanvas();
           return;
         }
       }
@@ -393,8 +214,8 @@ const BoardPage: React.FC = () => {
         y: point.y,
         text: '',
         color: '#FFEDD5', // Orange-100 theme
-        width: 220,
-        height: 160
+        width: 250,
+        height: 180
       };
       setStickyNotes(prev => [...prev, newNote]);
       // Switch back to pen tool after placing a sticky note
@@ -410,9 +231,9 @@ const BoardPage: React.FC = () => {
         y: point.y,
         text: '',
         color: 'transparent', // Default transparent color
-        width: 240,
-        height: 100,
-        fontSize: 14,
+        width: 280,
+        height: 120,
+        fontSize: 16,
         fontFamily: 'Inter',
         isBold: false,
         isItalic: false,
@@ -431,12 +252,14 @@ const BoardPage: React.FC = () => {
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    // Handle panning
+    // Handle panning with middle mouse button or shift + click
     if (isPanning) {
-      setViewOffset({
-        x: e.clientX - panStart.x,
-        y: e.clientY - panStart.y
-      });
+      const deltaX = e.movementX;
+      const deltaY = e.movementY;
+      setViewOffset(prev => ({
+        x: prev.x + deltaX,
+        y: prev.y + deltaY
+      }));
       return;
     }
 
@@ -460,17 +283,13 @@ const BoardPage: React.FC = () => {
     const point = getMousePos(e);
     setCurrentPath(prev => [...prev, point]);
 
-    // Draw current stroke - NO transform needed since points are already in canvas space
+    // Draw current stroke
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const toolConfig = getToolById(currentTool);
-    if (!toolConfig) return;
-
-    // Apply transform to convert canvas-space coordinates to screen-space for drawing
     ctx.save();
     ctx.translate(viewOffset.x, viewOffset.y);
     ctx.scale(zoom, zoom);
@@ -480,10 +299,10 @@ const BoardPage: React.FC = () => {
     ctx.lineJoin = 'round';
 
     // Apply tool-specific styles for live drawing
-    ctx.globalCompositeOperation = toolConfig.getCompositeOperation();
-    ctx.strokeStyle = toolConfig.getStrokeStyle(currentColor);
-    ctx.lineWidth = toolConfig.getStrokeWidth(strokeWidth);
-    ctx.globalAlpha = toolConfig.getAlpha();
+    ctx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
+    ctx.strokeStyle = currentTool === 'eraser' ? '#FFFFFF' : currentColor;
+    ctx.lineWidth = strokeWidth;
+    ctx.globalAlpha = 1;
 
     if (currentPath.length > 0) {
       const lastPoint = currentPath[currentPath.length - 1];
@@ -491,9 +310,7 @@ const BoardPage: React.FC = () => {
       ctx.lineTo(point.x, point.y);
       ctx.stroke();
     }
-    // Reset after incremental draw
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = 'source-over';
+
     ctx.restore();
   };
 
@@ -510,7 +327,6 @@ const BoardPage: React.FC = () => {
       setDragStrokeIndex(null);
       setDragStartPoint(null);
       setOriginalStrokePoints(null);
-      redrawCanvas(); // Redraw after finishing stroke movement
       return;
     }
 
@@ -519,9 +335,6 @@ const BoardPage: React.FC = () => {
     setIsDrawing(false);
 
     if (currentPath.length > 1) {
-      const toolConfig = getToolById(currentTool);
-      if (!toolConfig) return;
-
       const newPath: DrawingPath = {
         points: [...currentPath],
         color: currentColor,
@@ -530,10 +343,10 @@ const BoardPage: React.FC = () => {
       };
 
       setDrawingPaths(prev => [...prev, newPath]);
-      redrawCanvas(); // Redraw after adding the new path
     }
 
     setCurrentPath([]);
+    redrawCanvas(); // Redraw after adding the new path
   };
 
   const handleToolChange = (tool: string) => {
@@ -594,20 +407,104 @@ const BoardPage: React.FC = () => {
       <DottedBackground />
 
       {/* Minimized Navbar */}
-      <MinimizedNavbar 
-        isExpanded={isNavbarExpanded} 
-        onToggle={() => setIsNavbarExpanded(!isNavbarExpanded)} 
-      />
+      <div className="absolute top-4 left-2 z-50">
+        <button
+          onClick={() => setIsNavbarExpanded(!isNavbarExpanded)}
+          className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-orange-600 transition-colors"
+        >
+          {isNavbarExpanded ? 'M' : '☰'}
+        </button>
+      </div>
       
-      {/* Subtle selection overlay */}
-      {currentTool === 'select' && (
-        <div className="absolute inset-0 pointer-events-none z-0"
-          style={{ background: 'linear-gradient(0deg, rgba(59,130,246,0.06), rgba(59,130,246,0.06))' }} />
+      {/* Expanded Navbar */}
+      {isNavbarExpanded && (
+        <div className="absolute top-4 left-4 z-50 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-orange-200 p-4 w-64">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-bold text-orange-800">Tools</h3>
+            <button
+              onClick={() => setIsNavbarExpanded(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ×
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            {[
+              { id: 'select', name: 'Select' },
+              { id: 'pen', name: 'Pen' },
+              { id: 'pencil', name: 'Pencil' },
+              { id: 'eraser', name: 'Eraser' },
+              { id: 'text', name: 'Text' },
+              { id: 'sticky-note', name: 'Note' },
+            ].map(tool => (
+              <button
+                key={tool.id}
+                onClick={() => handleToolChange(tool.id)}
+                className={`p-3 rounded-lg flex flex-col items-center gap-1 text-sm ${
+                  currentTool === tool.id ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <span className="font-medium">{tool.name}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm text-gray-700 mb-1">Color</label>
+              <input
+                type="color"
+                value={currentColor}
+                onChange={(e) => handleColorChange(e.target.value)}
+                className="w-full h-8"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-700 mb-1">Size: {strokeWidth}</label>
+              <input
+                type="range"
+                min="1"
+                max="20"
+                value={strokeWidth}
+                onChange={(e) => handleStrokeWidthChange(parseInt(e.target.value))}
+                className="w-full"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={handleUndo}
+                className="flex-1 p-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 flex items-center justify-center gap-1"
+              >
+                ↶ Undo
+              </button>
+              <button
+                onClick={handleClear}
+                className="flex-1 p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 flex items-center justify-center gap-1"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
       )}
+
+      {/* Back Button */}
+      <div className="absolute top-4 right-4 z-40">
+        <button
+          onClick={() => navigate('/')}
+          className="bg-orange-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-orange-600 transition-colors flex items-center gap-2"
+        >
+          <ArrowLeft size={16} />
+          <span>Exit</span>
+        </button>
+      </div>
 
       {/* Query Input Section */}
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40">
-        <form onSubmit={handleQuerySubmit} className="flex items-center gap-2">
+        <form onSubmit={(e) => e.preventDefault()} className="flex items-center gap-2">
           <div className="relative">
             <div className="rounded-2xl bg-transparent">
               <div className="rounded-2xl px-4 py-3 backdrop-blur-3xl bg-white/90 shadow-lg border border-orange-200">
@@ -651,16 +548,15 @@ const BoardPage: React.FC = () => {
       >
         <canvas
           ref={canvasRef}
-          className={`absolute inset-0 ${currentTool === 'select' ? 'cursor-pointer' : 'cursor-crosshair'} ${isPanning ? 'cursor-grabbing' : ''}`}
+          className={`absolute inset-0 ${currentTool === 'select' ? 'cursor-pointer' : 'cursor-crosshair'}`}
           style={{
-            cursor: currentTool === 'eraser' ? getEraserCursor(strokeWidth) : undefined
+            top: '80px',
+            bottom: '80px',
           }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          onMouseLeave={() => {
-            handleMouseUp();
-          }}
+          onMouseLeave={handleMouseUp}
         />
       </div>
 
@@ -669,23 +565,59 @@ const BoardPage: React.FC = () => {
         className="absolute inset-0 z-20 pointer-events-none"
         style={{
           transform: `translate(${viewOffset.x}px, ${viewOffset.y}px) scale(${zoom})`,
-          transformOrigin: '0 0'
+          transformOrigin: '0 0',
+          pointerEvents: currentTool === 'select' ? 'auto' : 'none'
         }}
       >
         {stickyNotes.map(note => (
           <div key={note.id} style={{ pointerEvents: 'auto' }}>
-            <StickyNote
-              id={note.id}
-              x={note.x}
-              y={note.y}
-              text={note.text}
-              color={note.color}
-              width={note.width}
-              height={note.height}
-              selectionMode={currentTool === 'select'}
-              onUpdate={handleStickyNoteUpdate}
-              onDelete={handleStickyNoteDelete}
-            />
+            <div 
+              style={{
+                position: 'absolute',
+                left: note.x,
+                top: note.y,
+                width: note.width,
+                height: note.height,
+                backgroundColor: note.color,
+                border: '1px solid rgba(0,0,0,0.1)',
+                borderRadius: '8px',
+                padding: '12px',
+                zIndex: 20,
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              }}
+            >
+              <textarea
+                value={note.text}
+                onChange={(e) => handleStickyNoteUpdate(note.id, { text: e.target.value })}
+                placeholder="Write your note here..."
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  backgroundColor: 'transparent',
+                  fontSize: '14px',
+                  fontFamily: 'Inter',
+                  fontWeight: 'normal',
+                }}
+              />
+              <button
+                onClick={() => handleStickyNoteDelete(note.id)}
+                style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  color: '#888',
+                }}
+              >
+                ×
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -695,45 +627,155 @@ const BoardPage: React.FC = () => {
         className="absolute inset-0 z-20 pointer-events-none"
         style={{
           transform: `translate(${viewOffset.x}px, ${viewOffset.y}px) scale(${zoom})`,
-          transformOrigin: '0 0'
+          transformOrigin: '0 0',
+          pointerEvents: currentTool === 'select' ? 'auto' : 'none'
         }}
       >
         {textBoxes.map(textBox => (
           <div key={textBox.id} style={{ pointerEvents: 'auto' }}>
-            <TextBox
-              id={textBox.id}
-              x={textBox.x}
-              y={textBox.y}
-              text={textBox.text}
-              color={textBox.color}
-              width={textBox.width}
-              height={textBox.height}
-              fontSize={textBox.fontSize}
-              fontFamily={textBox.fontFamily}
-              isBold={textBox.isBold}
-              isItalic={textBox.isItalic}
-              isUnderline={textBox.isUnderline}
-              enableMarkdown={textBox.enableMarkdown}
-              selectionMode={currentTool === 'select'}
-              onUpdate={handleTextBoxUpdate}
-              onDelete={handleTextBoxDelete}
-            />
+            <div
+              style={{
+                position: 'absolute',
+                left: textBox.x,
+                top: textBox.y,
+                width: textBox.width,
+                height: textBox.height,
+                backgroundColor: textBox.color,
+                border: textBox.color === 'transparent' ? '1px dashed rgba(0,0,0,0.3)' : '1px solid rgba(0,0,0,0.1)',
+                borderRadius: '8px',
+                padding: '12px',
+                zIndex: 20,
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              }}
+            >
+              <textarea
+                value={textBox.text}
+                onChange={(e) => handleTextBoxUpdate(textBox.id, { text: e.target.value })}
+                placeholder="Add text here..."
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  backgroundColor: 'transparent',
+                  fontSize: `${textBox.fontSize}px`,
+                  fontFamily: textBox.fontFamily,
+                  fontWeight: textBox.isBold ? 'bold' : 'normal',
+                  fontStyle: textBox.isItalic ? 'italic' : 'normal',
+                }}
+              />
+              <button
+                onClick={() => handleTextBoxDelete(textBox.id)}
+                style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '24px',
+                  height: '24px',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                ×
+              </button>
+            </div>
           </div>
         ))}
       </div>
 
       {/* Canvas Dock */}
-      <CanvasDock
-        currentTool={currentTool}
-        currentColor={currentColor}
-        strokeWidth={strokeWidth}
-        onToolChange={handleToolChange}
-        onColorChange={handleColorChange}
-        onStrokeWidthChange={handleStrokeWidthChange}
-        onUndo={handleUndo}
-        onClear={handleClear}
-        sidebarOpen={!isNavbarExpanded}
-      />
+      <div className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 z-40 transition-[margin] duration-300 ${sidebarOpen ? 'ml-[80px]' : 'ml-[10px]'}`}>
+        <div className="relative">
+          {/* Outer gradient border for premium matte ring */}
+          <div className="rounded-2xl bg-transparent">
+            {/* Inner frosted glass panel */}
+            <div className="rounded-2xl backdrop-blur-3xl bg-white/90 border border-orange-200 shadow-sm">
+              <div className="flex items-center justify-between gap-8 px-6 py-4">
+                {/* Left Section - Primary Tools */}
+                <div className="flex items-center gap-2">
+                  {[
+                    { id: 'select', name: 'Select' },
+                    { id: 'pen', name: 'Pen' },
+                    { id: 'pencil', name: 'Pencil' },
+                    { id: 'eraser', name: 'Eraser' },
+                    { id: 'text', name: 'Text' },
+                    { id: 'sticky-note', name: 'Note' },
+                  ].map(tool => (
+                    <button
+                      key={tool.id}
+                      onClick={() => handleToolChange(tool.id)}
+                      className={`group flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-300 ${
+                        currentTool === tool.id 
+                          ? 'bg-black/10 text-black shadow-[0_8px_24px_rgba(0,0,0,0.10)]' 
+                          : 'text-black hover:bg-black/5'
+                      }`}
+                      title={tool.name}
+                      style={{ transform: currentTool === tool.id ? 'translateY(-1px)' : 'translateY(0px)' }}
+                    >
+                      <span className="text-xs font-medium opacity-80">{tool.name}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Center Section - Color and Size */}
+                <div className="flex items-center gap-6">
+                  {/* Color Picker */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🎨</span>
+                    <input
+                      type="color"
+                      value={currentColor}
+                      onChange={(e) => handleColorChange(e.target.value)}
+                      className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
+                    />
+                  </div>
+
+                  {/* Stroke Width */}
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-black font-medium">Size</span>
+                    <input
+                      type="range"
+                      min="1"
+                      max="20"
+                      value={strokeWidth}
+                      onChange={(e) => handleStrokeWidthChange(Number(e.target.value))}
+                      className="w-24 accent-black"
+                    />
+                    <span className="text-sm text-black w-6 font-semibold tabular-nums">{strokeWidth}</span>
+                  </div>
+                </div>
+
+                {/* Right Section - Actions */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleUndo}
+                    className="flex items-center gap-2 px-3 py-2 text-black hover:bg-black/5 rounded-xl transition-all duration-300"
+                    title="Undo"
+                  >
+                    ↶
+                    <span className="text-sm font-medium">Undo</span>
+                  </button>
+                  <button
+                    onClick={handleClear}
+                    className="flex items-center gap-2 px-3 py-2 text-black hover:bg-black/5 rounded-xl transition-all duration-300"
+                    title="Clear Canvas"
+                  >
+                    🗑
+                    <span className="text-sm font-medium">Clear</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
