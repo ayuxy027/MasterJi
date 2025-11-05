@@ -13,6 +13,11 @@ interface StickyNoteProps {
   enableMarkdown?: boolean;
   selectionMode?: boolean;
   ruled?: boolean;
+  fontSize?: number;
+  fontFamily?: string;
+  isBold?: boolean;
+  isItalic?: boolean;
+  isUnderline?: boolean;
   onUpdate: (id: string, updates: Partial<StickyNoteProps>) => void;
   onDelete: (id: string) => void;
 }
@@ -28,6 +33,11 @@ const StickyNote: React.FC<StickyNoteProps> = ({
   enableMarkdown = false,
   selectionMode = false,
   ruled = false,
+  fontSize = 14,
+  fontFamily = 'Inter',
+  isBold = false,
+  isItalic = false,
+  isUnderline = false,
   onUpdate,
   onDelete
 }) => {
@@ -171,8 +181,8 @@ const StickyNote: React.FC<StickyNoteProps> = ({
 
       {/* Settings Panel */}
       {showSettings && (
-        <div className="absolute top-8 right-0 bg-white rounded-md shadow-lg p-3 border border-gray-200 min-w-[150px]" style={{ zIndex: 99999 }}>
-          <div className="space-y-2">
+        <div className="absolute top-8 right-0 bg-white rounded-md shadow-lg p-3 border border-gray-200 min-w-[180px]" style={{ zIndex: 99999 }}>
+          <div className="space-y-3">
             {/* Color Picker */}
             <div>
               <label className="block text-xs text-gray-700 mb-1">Color</label>
@@ -187,6 +197,23 @@ const StickyNote: React.FC<StickyNoteProps> = ({
                   />
                 ))}
               </div>
+            </div>
+
+            {/* Font Size */}
+            <div>
+              <label className="block text-xs text-gray-700 mb-1">Text Size</label>
+              <select
+                value={fontSize}
+                onChange={(e) => onUpdate(id, { fontSize: Number(e.target.value) })}
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full text-sm border border-gray-300 rounded px-2 py-1"
+                style={{ zIndex: 999999 }}
+              >
+                {[12, 14, 16, 18, 20, 24].map((size) => (
+                  <option key={size} value={size}>{size}px</option>
+                ))}
+              </select>
             </div>
 
             {/* Ruled Lines Toggle */}
@@ -226,21 +253,22 @@ const StickyNote: React.FC<StickyNoteProps> = ({
 
       {/* Content */}
       <div
-        className="relative p-4 h-full cursor-text rounded-lg overflow-hidden"
+        className="relative h-full cursor-text rounded-lg overflow-hidden"
         style={{
           backgroundColor: color,
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
           border: '1px solid rgba(0, 0, 0, 0.06)',
+          padding: ruled ? '16px 16px 16px 16px' : '16px',
           backgroundImage: ruled
             ? `repeating-linear-gradient(
                 to bottom,
                 transparent 0px,
-                transparent 21px,
-                rgba(0, 0, 0, 0.08) 21px,
-                rgba(0, 0, 0, 0.08) 22px
+                transparent ${Math.max(fontSize * 1.5, 21)}px,
+                rgba(0, 0, 0, 0.08) ${Math.max(fontSize * 1.5, 21)}px,
+                rgba(0, 0, 0, 0.08) ${Math.max(fontSize * 1.5, 21) + 1}px
               )`
             : 'none',
-          backgroundPosition: ruled ? '0 4px' : '0 0'
+          backgroundPosition: ruled ? '0 16px' : '0 0'
         }}
         onClick={handleClick}
         onMouseDown={handleMouseDown}
@@ -254,31 +282,46 @@ const StickyNote: React.FC<StickyNoteProps> = ({
             onKeyDown={handleKeyDown}
             className="w-full h-full bg-transparent border-none outline-none resize-none"
             style={{
-              fontFamily: 'Inter',
-              fontSize: '14px',
-              lineHeight: '1.5',
-              color: '#2c3e50'
+              fontFamily: enableMarkdown ? 'monospace' : fontFamily,
+              fontSize: `${fontSize}px`,
+              lineHeight: ruled ? `${Math.max(fontSize * 1.5, 21)}px` : '1.5',
+              color: '#2c3e50',
+              fontWeight: isBold ? 'bold' : 'normal',
+              fontStyle: isItalic ? 'italic' : 'normal',
+              textDecoration: isUnderline ? 'underline' : 'none',
+              margin: 0,
+              padding: 0
             }}
-            placeholder="Enter note here..."
+            placeholder={enableMarkdown ? "Enter markdown text here..." : "Enter note here..."}
           />
         ) : (
           <div className="w-full h-full">
             {enableMarkdown ? (
-              <MarkdownRenderer
-                content={text || 'Enter Text or Generate with AI...'}
-                fontFamily="Inter"
-                fontSize={14}
-                color={text ? '#2c3e50' : 'rgba(44,62,80,0.35)'}
-              />
+              <div style={{ lineHeight: ruled ? `${Math.max(fontSize * 1.5, 21)}px` : '1.5' }}>
+                <MarkdownRenderer
+                  content={text || 'Enter Text or Generate with AI...'}
+                  fontFamily={fontFamily}
+                  fontSize={fontSize}
+                  isBold={isBold}
+                  isItalic={isItalic}
+                  isUnderline={isUnderline}
+                  color={text ? '#2c3e50' : 'rgba(44,62,80,0.35)'}
+                />
+              </div>
             ) : (
               <div
                 style={{
-                  fontFamily: 'Inter',
-                  fontSize: '14px',
-                  lineHeight: '1.5',
+                  fontFamily: fontFamily,
+                  fontSize: `${fontSize}px`,
+                  lineHeight: ruled ? `${Math.max(fontSize * 1.5, 21)}px` : '1.5',
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-word',
-                  color: '#2c3e50'
+                  color: '#2c3e50',
+                  fontWeight: isBold ? 'bold' : 'normal',
+                  fontStyle: isItalic ? 'italic' : 'normal',
+                  textDecoration: isUnderline ? 'underline' : 'none',
+                  margin: 0,
+                  padding: 0
                 }}
               >
                 {text || <span style={{ color: 'rgba(44,62,80,0.35)' }}>Enter Text or Generate with AI...</span>}

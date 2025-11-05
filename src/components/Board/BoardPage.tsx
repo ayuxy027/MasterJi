@@ -29,6 +29,12 @@ interface StickyNote {
   width: number;
   height: number;
   ruled?: boolean;
+  fontSize?: number;
+  fontFamily?: string;
+  isBold?: boolean;
+  isItalic?: boolean;
+  isUnderline?: boolean;
+  enableMarkdown?: boolean;
 }
 
 interface TextBox {
@@ -274,7 +280,7 @@ const BoardPage: React.FC = () => {
     ctx.translate(viewOffset.x, viewOffset.y);
     ctx.scale(zoom, zoom);
 
-    // Redraw all paths
+    // Redraw all paths with smooth curves
     drawingPaths.forEach(path => {
       if (path.points.length < 2) return;
 
@@ -284,6 +290,7 @@ const BoardPage: React.FC = () => {
       ctx.beginPath();
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
+      ctx.miterLimit = 2;
 
       // Apply tool-specific styles
       ctx.globalCompositeOperation = toolConfig.getCompositeOperation();
@@ -291,10 +298,27 @@ const BoardPage: React.FC = () => {
       ctx.lineWidth = toolConfig.getStrokeWidth(path.strokeWidth);
       ctx.globalAlpha = toolConfig.getAlpha();
 
-      ctx.moveTo(path.points[0].x, path.points[0].y);
-      path.points.forEach(point => {
-        ctx.lineTo(point.x, point.y);
-      });
+      // Smooth curve rendering using quadratic bezier curves
+      if (path.points.length === 2) {
+        ctx.moveTo(path.points[0].x, path.points[0].y);
+        ctx.lineTo(path.points[1].x, path.points[1].y);
+      } else {
+        ctx.moveTo(path.points[0].x, path.points[0].y);
+
+        // Use quadratic curves for smooth strokes
+        for (let i = 1; i < path.points.length - 1; i++) {
+          const current = path.points[i];
+          const next = path.points[i + 1];
+          const midX = (current.x + next.x) / 2;
+          const midY = (current.y + next.y) / 2;
+
+          ctx.quadraticCurveTo(current.x, current.y, midX, midY);
+        }
+
+        // Draw to the last point
+        const lastPoint = path.points[path.points.length - 1];
+        ctx.lineTo(lastPoint.x, lastPoint.y);
+      }
 
       ctx.stroke();
       // Reset drawing state
@@ -310,9 +334,22 @@ const BoardPage: React.FC = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      // Enable high-quality rendering
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+    }
+
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      // Re-enable high-quality rendering after resize
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+      }
       redrawCanvas();
     };
 
@@ -378,7 +415,13 @@ const BoardPage: React.FC = () => {
         color: '#FFEDD5', // Orange-100 theme
         width: 220,
         height: 160,
-        ruled: false
+        ruled: false,
+        fontSize: 14,
+        fontFamily: 'Inter',
+        isBold: false,
+        isItalic: false,
+        isUnderline: false,
+        enableMarkdown: false
       };
       setStickyNotes(prev => [...prev, newNote]);
       // Switch back to pen tool after placing a sticky note
@@ -467,6 +510,7 @@ const BoardPage: React.FC = () => {
     ctx.beginPath();
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+    ctx.miterLimit = 2;
 
     // Apply tool-specific styles for live drawing
     ctx.globalCompositeOperation = toolConfig.getCompositeOperation();
@@ -474,13 +518,18 @@ const BoardPage: React.FC = () => {
     ctx.lineWidth = toolConfig.getStrokeWidth(strokeWidth);
     ctx.globalAlpha = toolConfig.getAlpha();
 
-    // Draw from last point to current point for smooth continuous line
+    // Draw from last point to current point with smooth curve
     if (lastPoint) {
+      // Use quadratic curve for smoother transitions
+      const midX = (lastPoint.x + point.x) / 2;
+      const midY = (lastPoint.y + point.y) / 2;
+
       ctx.moveTo(lastPoint.x, lastPoint.y);
+      ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, midX, midY);
       ctx.lineTo(point.x, point.y);
       ctx.stroke();
     } else {
-      // First point - draw a small dot
+      // First point - draw a small smooth dot
       ctx.arc(point.x, point.y, toolConfig.getStrokeWidth(strokeWidth) / 2, 0, Math.PI * 2);
       ctx.fill();
     }
@@ -650,6 +699,12 @@ const BoardPage: React.FC = () => {
               width={note.width}
               height={note.height}
               ruled={note.ruled}
+              fontSize={note.fontSize}
+              fontFamily={note.fontFamily}
+              isBold={note.isBold}
+              isItalic={note.isItalic}
+              isUnderline={note.isUnderline}
+              enableMarkdown={note.enableMarkdown}
               selectionMode={currentTool === 'select'}
               onUpdate={handleStickyNoteUpdate}
               onDelete={handleStickyNoteDelete}
