@@ -1,9 +1,10 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { HiOutlineCursorClick } from 'react-icons/hi';
 import { TiPen } from 'react-icons/ti';
-import { LuPencil, LuPalette, LuRotateCcw, LuTrash2, LuStamp, LuGrid3X3, LuEraser, LuChevronDown } from 'react-icons/lu';
+import { LuPencil, LuPalette, LuRotateCcw, LuTrash2, LuStamp, LuGrid3X3, LuEraser, LuChevronDown, LuSparkles } from 'react-icons/lu';
 import { MdOutlineEventNote } from 'react-icons/md';
 import { IoText } from 'react-icons/io5';
+import { Bot, X, List, Target, GitBranch, Layers } from 'lucide-react';
 
 interface CanvasDockProps {
   currentTool: string;
@@ -15,6 +16,12 @@ interface CanvasDockProps {
   onUndo: () => void;
   onClear: () => void;
   sidebarOpen?: boolean;
+  query?: string;
+  setQuery?: (query: string) => void;
+  onQuerySubmit?: (e: React.FormEvent) => void;
+  isLoading?: boolean;
+  activeToolbarOption?: string;
+  onToolbarOptionChange?: (option: string) => void;
 }
 
 const CanvasDock: React.FC<CanvasDockProps> = ({
@@ -26,16 +33,33 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
   onStrokeWidthChange,
   onUndo,
   onClear,
-  sidebarOpen = true
+  sidebarOpen = true,
+  query = '',
+  setQuery,
+  onQuerySubmit,
+  isLoading = false,
+  activeToolbarOption = 'summarise',
+  onToolbarOptionChange
 }) => {
   const [isOverflowOpen, setIsOverflowOpen] = useState(false);
+  const [isQueryPanelOpen, setIsQueryPanelOpen] = useState(false);
+  const [isToolbarOpen, setIsToolbarOpen] = useState(false);
   const overflowRef = useRef<HTMLDivElement | null>(null);
+  const queryPanelRef = useRef<HTMLDivElement | null>(null);
+  const toolbarRef = useRef<HTMLDivElement | null>(null);
   const colorInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (overflowRef.current && !overflowRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (overflowRef.current && !overflowRef.current.contains(target)) {
         setIsOverflowOpen(false);
+      }
+      if (queryPanelRef.current && !queryPanelRef.current.contains(target)) {
+        setIsQueryPanelOpen(false);
+      }
+      if (toolbarRef.current && !toolbarRef.current.contains(target)) {
+        setIsToolbarOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -57,7 +81,19 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
   const overflowTools = useMemo(
     () => [
       { id: 'stamp', icon: LuStamp, label: 'Stamp' },
-      { id: 'grid', icon: LuGrid3X3, label: 'Grid' }
+      { id: 'grid', icon: LuGrid3X3, label: 'Grid' },
+      { id: 'query', icon: Bot, label: 'Generate', action: 'query' },
+      { id: 'toolbar', icon: LuSparkles, label: 'Modes', action: 'toolbar' }
+    ],
+    []
+  );
+
+  const toolbarOptions = useMemo(
+    () => [
+      { id: 'summarise', label: 'Summarise', icon: List },
+      { id: 'action-points', label: 'Action points', icon: Target },
+      { id: 'timeline', label: 'Timeline', icon: GitBranch },
+      { id: 'breakdown', label: 'Breakdown', icon: Layers }
     ],
     []
   );
@@ -105,18 +141,29 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
 
                   {isOverflowOpen && (
                     <div
-                      className="absolute bottom-12 left-0 min-w-[160px] rounded-xl p-2 backdrop-blur-3xl bg-transparent"
+                      className="absolute bottom-12 left-0 min-w-[160px] rounded-xl p-2 backdrop-blur-3xl bg-white/95 shadow-xl border border-orange-200"
+                      ref={overflowRef}
                     >
                       <div className="grid grid-cols-3 gap-2">
                         {overflowTools.map((tool) => {
                           const Icon = tool.icon as React.ComponentType<{ size?: number; className?: string }>;
                           const isActive = currentTool === tool.id;
+                          const isAction = (tool as any).action;
+                          
                           return (
                             <button
                               key={tool.id}
                               onClick={() => {
-                                onToolChange(tool.id);
-                                setIsOverflowOpen(false);
+                                if (isAction === 'query') {
+                                  setIsQueryPanelOpen(true);
+                                  setIsOverflowOpen(false);
+                                } else if (isAction === 'toolbar') {
+                                  setIsToolbarOpen(true);
+                                  setIsOverflowOpen(false);
+                                } else {
+                                  onToolChange(tool.id);
+                                  setIsOverflowOpen(false);
+                                }
                               }}
                               className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-all ${isActive ? 'bg-orange-100 text-orange-600' : 'text-orange-500 hover:bg-orange-50'
                                 }`}
@@ -124,6 +171,98 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                             >
                               <Icon size={18} />
                               <span className="text-[10px] leading-none">{tool.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Query Panel */}
+                  {isQueryPanelOpen && (
+                    <div
+                      ref={queryPanelRef}
+                      className="absolute bottom-12 left-0 w-80 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-orange-200 p-4 z-[60]"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Bot size={20} className="text-orange-500" />
+                          <h3 className="text-sm font-semibold text-orange-600">Generate Cards</h3>
+                        </div>
+                        <button
+                          onClick={() => setIsQueryPanelOpen(false)}
+                          className="text-orange-500 hover:text-orange-600 transition-colors"
+                          title="Close"
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+                      
+                      <form onSubmit={onQuerySubmit} className="space-y-3">
+                        <textarea
+                          value={query}
+                          onChange={(e) => setQuery?.(e.target.value)}
+                          placeholder="Type your query to generate cards..."
+                          className="w-full px-3 py-2 bg-transparent border border-orange-200 rounded-lg outline-none text-orange-900 placeholder-orange-400 resize-none focus:border-orange-400 transition-colors"
+                          rows={4}
+                          disabled={isLoading}
+                        />
+                        <button
+                          type="submit"
+                          disabled={isLoading || !query.trim()}
+                          className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold flex items-center justify-center gap-2"
+                        >
+                          {isLoading ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              <span>Generating...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Bot size={16} />
+                              <span>Generate</span>
+                            </>
+                          )}
+                        </button>
+                      </form>
+                    </div>
+                  )}
+
+                  {/* Toolbar Panel */}
+                  {isToolbarOpen && (
+                    <div
+                      ref={toolbarRef}
+                      className="absolute bottom-12 left-0 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-orange-200 p-3 z-[60]"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-sm font-semibold text-orange-600">Content Modes</h3>
+                        <button
+                          onClick={() => setIsToolbarOpen(false)}
+                          className="text-orange-500 hover:text-orange-600 transition-colors"
+                          title="Close"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {toolbarOptions.map((option) => {
+                          const IconComponent = option.icon;
+                          const isActive = activeToolbarOption === option.id;
+                          return (
+                            <button
+                              key={option.id}
+                              onClick={() => {
+                                onToolbarOptionChange?.(option.id);
+                                setIsToolbarOpen(false);
+                              }}
+                              className={`group flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-300 ease-out focus:outline-none ${isActive
+                                      ? 'bg-orange-100 text-orange-600 shadow-[0_8px_24px_rgba(249,115,22,0.15)]'
+                                      : 'text-orange-500 hover:bg-orange-50'
+                                  }`}
+                              style={{ transform: isActive ? 'translateY(-1px)' : 'translateY(0px)' }}
+                            >
+                              <IconComponent size={14} />
+                              <span className="text-xs font-medium opacity-80">{option.label}</span>
                             </button>
                           );
                         })}

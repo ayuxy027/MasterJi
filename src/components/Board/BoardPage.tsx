@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { DottedBackground, CanvasToolbar, CanvasDock, StickyNote, TextBox } from './index';
+import { DottedBackground, CanvasDock, StickyNote, TextBox } from './index';
 import { getToolById, getEraserCursor, Point, DrawingPath } from './tools';
 import { parseAIResponse, extractSections } from '../../utils/jsonParser';
 import { sendMessage } from '../../services/groqClient';
@@ -47,22 +46,9 @@ interface TextBox {
   enableMarkdown?: boolean;
 }
 
-interface CanvasSession {
-  drawingPaths: DrawingPath[];
-  stickyNotes: StickyNote[];
-  textBoxes: TextBox[];
-  viewOffset: { x: number; y: number };
-  zoom: number;
-  timestamp: number;
-}
-
-const STORAGE_KEY = 'masterji-board-sessions';
-const CURRENT_SESSION_KEY = 'masterji-board-current';
-
 const BoardPage: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
 
   // State management
   const [isDrawing, setIsDrawing] = useState(false);
@@ -78,12 +64,10 @@ const BoardPage: React.FC = () => {
   // Query input state
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  // Commenting out streamingContent as it's not being used
-  // const [streamingContent, setStreamingContent] = useState('');
 
   // Canvas view state (for unlimited scrolling)
   const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
+  const [zoom] = useState(1); // Fixed zoom for now
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
 
@@ -96,35 +80,18 @@ const BoardPage: React.FC = () => {
   const [dragStartPoint, setDragStartPoint] = useState<Point | null>(null);
   const [originalStrokePoints, setOriginalStrokePoints] = useState<Point[] | null>(null);
 
-  // Load session from local storage
-  useEffect(() => {
-    // Commenting out session loading as these constants don't exist in this scope
-    // const savedSession = localStorage.getItem(CURRENT_SESSION_KEY);
-    // if (savedSession) {
-    //   try {
-    //     const session: CanvasSession = JSON.parse(savedSession);
-    //     setDrawingPaths(session.drawingPaths || []);
-    //     setStickyNotes(session.stickyNotes || []);
-    //     setTextBoxes(session.textBoxes || []);
-    //     setViewOffset(session.viewOffset || { x: 0, y: 0 });
-    //     setZoom(session.zoom || 1);
-    //   } catch (error) {
-    //     console.error('Error loading session:', error);
-    //   }
-    // }
+
+  // Calculate word count
+  const getWordCount = useCallback((text: string): number => {
+    return text.trim().split(/\s+/).filter(Boolean).length;
   }, []);
 
-  // Calculate word count (kept for reference)
-  const getWordCount = (text: string): number => {
-    return text.trim().split(/\s+/).filter(Boolean).length;
-  };
-
   // Calculate adaptive TextBox size
-  const calculateTextBoxSize = (text: string) => {
+  const calculateTextBoxSize = useCallback((text: string) => {
     const wordCount = getWordCount(text);
     const charCount = text.length;
 
-    // Base dimensions - smaller for better fit
+    // Base dimensions
     let width = 300;
     let height = 180;
 
@@ -148,7 +115,7 @@ const BoardPage: React.FC = () => {
     height = Math.max(height, 160);
 
     return { width, height };
-  };
+  }, [getWordCount]);
 
   // Handle query submission
   const handleQuerySubmit = async (e: React.FormEvent) => {
@@ -156,21 +123,19 @@ const BoardPage: React.FC = () => {
     if (!query.trim() || isLoading) return;
 
     setIsLoading(true);
-    setStreamingContent('');
-    
+
     // Clear previous streaming cards
     setTextBoxes(prev => prev.filter(tb => !tb.id.startsWith('ai-streaming-') && !tb.id.startsWith('ai-final-')));
 
     try {
       let accumulatedContent = '';
-      
+
       await sendMessage(query, (chunk: string) => {
         accumulatedContent += chunk;
-        setStreamingContent(accumulatedContent);
-        
+
         // Update cards in real-time
         try {
-          const sections = parseStreamingContent(accumulatedContent);
+          const sections = parseStreamingContent(accumulatedContent, query);
           updateStreamingTextBoxes(sections);
         } catch (error) {
           console.error('Error parsing streaming content:', error);
@@ -178,10 +143,9 @@ const BoardPage: React.FC = () => {
       });
 
       // Final update with complete content
-      const finalSections = parseStreamingContent(accumulatedContent);
+      const finalSections = parseStreamingContent(accumulatedContent, query);
       createFinalTextBoxes(finalSections);
-      
-      setStreamingContent('');
+
       setQuery('');
     } catch (error) {
       console.error('Error generating cards:', error);
@@ -191,9 +155,9 @@ const BoardPage: React.FC = () => {
   };
 
   // Parse streaming content into JSON sections
-  const parseStreamingContent = (content: string): string[] => {
+  const parseStreamingContent = useCallback((content: string, userQuery: string): string[] => {
     try {
-      const aiResponse = parseAIResponse(content, query);
+      const aiResponse = parseAIResponse(content, userQuery);
       return extractSections(aiResponse);
     } catch (error) {
       console.error('Error parsing streaming content:', error);
@@ -201,21 +165,28 @@ const BoardPage: React.FC = () => {
       const sections = content.split('\n\n').filter(section => section.trim().length > 0);
       return sections.slice(0, 3);
     }
-  };
+  }, []);
 
-  // Update streaming TextBoxes
-  const updateStreamingTextBoxes = (sections: string[]) => {
-    let currentX = 100 + viewOffset.x;
+  // Update streaming TextBoxes - place in center of viewport (canvas coordinates)
+  const updateStreamingTextBoxes = useCallback((sections: string[]) => {
+    const screenCenterX = window.innerWidth / 2;
+    const screenCenterY = window.innerHeight / 2;
+    const canvasCenterX = (screenCenterX - viewOffset.x) / zoom;
+    const canvasCenterY = (screenCenterY - viewOffset.y) / zoom;
+
+    const startX = canvasCenterX - 300;
+    const startY = canvasCenterY - 150;
+    let currentX = startX;
     const cardSpacing = 40;
 
     const newTextBoxes = sections.map((section, index) => {
       const fullText = truncateToWords(cleanWhitespace(section));
       const { width, height } = calculateTextBoxSize(fullText);
 
-      const textBox = {
+      return {
         id: `ai-streaming-${index}`,
         x: currentX,
-        y: 150 + viewOffset.y + (index * 120),
+        y: startY + (index * (height + cardSpacing)),
         text: fullText,
         color: '#ffffff',
         width,
@@ -227,33 +198,38 @@ const BoardPage: React.FC = () => {
         isUnderline: false,
         enableMarkdown: true,
       };
-
-      // Update position for next card
-      currentX += width + cardSpacing;
-
+    }).map((textBox, index, arr) => {
+      if (index > 0) {
+        textBox.x = arr[index - 1].x + arr[index - 1].width + cardSpacing;
+      }
       return textBox;
     });
 
     setTextBoxes(prev => {
-      // Remove existing streaming TextBoxes
       const filtered = prev.filter(tb => !tb.id.startsWith('ai-streaming-'));
       return [...filtered, ...newTextBoxes];
     });
-  };
+  }, [viewOffset, zoom, calculateTextBoxSize]);
 
-  // Create final TextBoxes from completed content
-  const createFinalTextBoxes = (sections: string[]): void => {
-    let currentX = 100 + viewOffset.x;
+  // Create final TextBoxes from completed content - place in center of viewport
+  const createFinalTextBoxes = useCallback((sections: string[]): void => {
+    const screenCenterX = window.innerWidth / 2;
+    const screenCenterY = window.innerHeight / 2;
+    const canvasCenterX = (screenCenterX - viewOffset.x) / zoom;
+    const canvasCenterY = (screenCenterY - viewOffset.y) / zoom;
+
+    const startX = canvasCenterX - 300;
+    const startY = canvasCenterY - 150;
     const cardSpacing = 40;
 
     const finalTextBoxes = sections.map((section, index) => {
       const fullText = truncateToWords(cleanWhitespace(section));
       const { width, height } = calculateTextBoxSize(fullText);
 
-      const textBox = {
+      return {
         id: `ai-final-${Date.now()}-${index}`,
-        x: currentX,
-        y: 150 + viewOffset.y + (index * 120),
+        x: startX,
+        y: startY + (index * (height + cardSpacing)),
         text: fullText,
         color: '#ffffff',
         width,
@@ -265,10 +241,10 @@ const BoardPage: React.FC = () => {
         isUnderline: false,
         enableMarkdown: true,
       };
-
-      // Update position for next card
-      currentX += width + cardSpacing;
-
+    }).map((textBox, index, arr) => {
+      if (index > 0) {
+        textBox.x = arr[index - 1].x + arr[index - 1].width + cardSpacing;
+      }
       return textBox;
     });
 
@@ -276,7 +252,7 @@ const BoardPage: React.FC = () => {
       const filtered = prev.filter(tb => !tb.id.startsWith('ai-streaming-') && !tb.id.startsWith('ai-final-'));
       return [...filtered, ...finalTextBoxes];
     });
-  };
+  }, [viewOffset, zoom, calculateTextBoxSize]);
 
   // Define redrawCanvas before any usage to avoid TDZ
   const redrawCanvas = useCallback(() => {
@@ -325,7 +301,7 @@ const BoardPage: React.FC = () => {
     ctx.restore();
   }, [drawingPaths, viewOffset, zoom]);
 
-  // Initialize canvas
+  // Initialize canvas and handle resize
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -345,7 +321,7 @@ const BoardPage: React.FC = () => {
   // Redraw when paths change
   useEffect(() => {
     redrawCanvas();
-  }, [redrawCanvas]);
+  }, [drawingPaths, redrawCanvas]);
 
   const getMousePos = (e: React.MouseEvent<HTMLCanvasElement>): Point => {
     const canvas = canvasRef.current;
@@ -371,7 +347,7 @@ const BoardPage: React.FC = () => {
 
     const point = getMousePos(e);
 
-    // Select mode: try to pick a stroke to move
+    // Select mode: try to pick a stroke to move, or pan if empty space
     if (currentTool === 'select') {
       for (let i = drawingPaths.length - 1; i >= 0; i--) {
         if (hitTestPath(point, drawingPaths[i])) {
@@ -382,6 +358,9 @@ const BoardPage: React.FC = () => {
           return;
         }
       }
+      // In select mode but nothing hit - enable panning
+      setIsPanning(true);
+      setPanStart({ x: e.clientX - viewOffset.x, y: e.clientY - viewOffset.y });
       return;
     }
 
@@ -446,8 +425,8 @@ const BoardPage: React.FC = () => {
       const deltaX = point.x - dragStartPoint.x;
       const deltaY = point.y - dragStartPoint.y;
       const updatedPoints = originalStrokePoints.map(p => ({ x: p.x + deltaX, y: p.y + deltaY }));
-      setDrawingPaths(prev => 
-        prev.map((path, idx) => 
+      setDrawingPaths(prev =>
+        prev.map((path, idx) =>
           idx === dragStrokeIndex ? { ...path, points: updatedPoints } : path
         )
       );
@@ -594,51 +573,17 @@ const BoardPage: React.FC = () => {
       <DottedBackground />
 
       {/* Minimized Navbar */}
-      <MinimizedNavbar 
-        isExpanded={isNavbarExpanded} 
-        onToggle={() => setIsNavbarExpanded(!isNavbarExpanded)} 
+      <MinimizedNavbar
+        isExpanded={isNavbarExpanded}
+        onToggle={() => setIsNavbarExpanded(!isNavbarExpanded)}
       />
-      
+
       {/* Subtle selection overlay */}
       {currentTool === 'select' && (
         <div className="absolute inset-0 pointer-events-none z-0"
           style={{ background: 'linear-gradient(0deg, rgba(59,130,246,0.06), rgba(59,130,246,0.06))' }} />
       )}
 
-      {/* Query Input Section */}
-      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40">
-        <form onSubmit={handleQuerySubmit} className="flex items-center gap-2">
-          <div className="relative">
-            <div className="rounded-2xl bg-transparent">
-              <div className="rounded-2xl px-4 py-3 backdrop-blur-3xl bg-white/90 shadow-lg border border-orange-200">
-                <input
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Type your query to generate cards..."
-                  className="w-96 px-4 py-2 bg-transparent border-none outline-none text-orange-900 placeholder-orange-400"
-                  disabled={isLoading}
-                />
-                <button
-                  type="submit"
-                  disabled={isLoading || !query.trim()}
-                  className="ml-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
-                >
-                  {isLoading ? 'Generating...' : 'Generate'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
-
-      {/* Canvas Toolbar */}
-      <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-30">
-        <CanvasToolbar
-          activeOption={activeToolbarOption}
-          onOptionChange={handleToolbarOptionChange}
-        />
-      </div>
 
       {/* Canvas Container with transform */}
       <div
@@ -733,6 +678,12 @@ const BoardPage: React.FC = () => {
         onUndo={handleUndo}
         onClear={handleClear}
         sidebarOpen={!isNavbarExpanded}
+        query={query}
+        setQuery={setQuery}
+        onQuerySubmit={handleQuerySubmit}
+        isLoading={isLoading}
+        activeToolbarOption={activeToolbarOption}
+        onToolbarOptionChange={handleToolbarOptionChange}
       />
     </div>
   );

@@ -1,5 +1,4 @@
 export { default as DottedBackground } from './background/DottedBackground';
-export { default as CanvasToolbar } from './toolbar/CanvasToolbar';
 export { default as CanvasDock } from './dock/CanvasDock';
 export { default as StickyNote } from './tools/StickyNote';
 export { default as TextBox } from './tools/TextBox';
