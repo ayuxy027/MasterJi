@@ -181,10 +181,10 @@ const Landing = () => {
                         {/* Buttons */}
                         <div className="flex flex-row gap-4 justify-center items-center">
                             <button className="bg-orange-400 flex items-center gap-x-2 text-white border-2 border-orange-400 font-bold px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transform transition-all duration-300">
-                                Chat Now!
+                                Get Started
                             </button>
                             <Link to="/board" className="border-2 border-orange-400 text-orange-400 hover:bg-orange-100 hover:text-gray-800 font-semibold px-8 py-3 rounded-lg transition-all duration-300">
-                                Try Board
+                                Try Whiteboard
                             </Link>
                         </div>
                     </div>
