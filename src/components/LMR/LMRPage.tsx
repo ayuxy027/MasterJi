@@ -7,6 +7,7 @@ const LMRPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedModel, setSelectedModel] = useState('deepseek');
   const [selectedLanguage, setSelectedLanguage] = useState('english');
+  const [selectedTone, setSelectedTone] = useState('professional');
   const [activeView, setActiveView] = useState<'summary' | 'questions' | 'quiz' | 'notes' | 'pdf'>('summary');
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,6 +39,13 @@ const LMRPage: React.FC = () => {
     { value: 'marathi', label: 'मराठी' },
     { value: 'gujarati', label: 'ગુજરાતી' },
     { value: 'kannada', label: 'ಕನ್ನಡ' }
+  ];
+
+  const tones = [
+    { value: 'professional', label: 'Professional', description: 'Formal and academic tone' },
+    { value: 'friendly', label: 'Friendly', description: 'Casual and approachable tone' },
+    { value: 'conversational', label: 'Conversational', description: 'Natural and engaging tone' },
+    { value: 'concise', label: 'Concise', description: 'Brief and to-the-point tone' }
   ];
 
   const views = [
@@ -108,7 +116,7 @@ const LMRPage: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
           {/* Sidebar - Controls */}
           <aside className="lg:w-80 xl:w-96 flex-shrink-0">
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border-2 border-orange-200/60 p-5 sm:p-6 sticky top-24 space-y-6">
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border-2 border-orange-200/60 p-5 sm:p-6 sticky top-24 space-y-6 h-fit">
               {/* Upload Section */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
@@ -199,12 +207,39 @@ const LMRPage: React.FC = () => {
                 </select>
               </div>
 
+              {/* Tone Selector */}
+              <div>
+                <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-800 mb-2.5">
+                  <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                  </svg>
+                  Tone
+                </label>
+                <select 
+                  value={selectedTone} 
+                  onChange={(e) => setSelectedTone(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-white border-2 border-orange-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent text-gray-700 transition-all"
+                >
+                  {tones.map((tone) => (
+                    <option key={tone.value} value={tone.value}>{tone.label}</option>
+                  ))}
+                </select>
+                <p className="text-[10px] sm:text-xs text-gray-500 mt-1.5 ml-1">
+                  {tones.find(t => t.value === selectedTone)?.description}
+                </p>
+              </div>
+
               {/* Status Indicator */}
               {hasContent && (
                 <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-3.5">
                   <div className="flex items-center gap-2.5">
                     <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
-                    <p className="text-xs sm:text-sm text-gray-700 font-medium">Ready to generate content</p>
+                    <div className="flex-1">
+                      <p className="text-xs sm:text-sm text-gray-700 font-medium">Ready to generate</p>
+                      <p className="text-[10px] sm:text-xs text-gray-600 mt-0.5">
+                        {models.find(m => m.value === selectedModel)?.label} • {tones.find(t => t.value === selectedTone)?.label}
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -213,7 +248,7 @@ const LMRPage: React.FC = () => {
 
           {/* Main Content Area */}
           <main className="flex-1 min-w-0">
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border-2 border-orange-200/60 overflow-hidden">
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border-2 border-orange-200/60 overflow-hidden h-fit">
               {/* View Navigation Dock */}
               <div className="bg-orange-100 border-b-2 border-orange-200 p-3 sm:p-4 md:p-5">
                 <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 md:gap-3 max-w-full">
@@ -261,24 +296,46 @@ const LMRPage: React.FC = () => {
                   <>
                     {activeView === 'summary' && (
                       <div>
-                        <div className="flex items-center gap-3 mb-6">
-                          <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                          </svg>
-                          <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">Content Summary</h2>
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center gap-3">
+                            <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">Content Summary</h2>
+                          </div>
+                          <div className="hidden sm:flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                            <span className="px-2.5 py-1 bg-orange-50 border border-orange-200 rounded-full">{languages.find(l => l.value === selectedLanguage)?.label}</span>
+                            <span className="px-2.5 py-1 bg-orange-50 border border-orange-200 rounded-full">{tones.find(t => t.value === selectedTone)?.label}</span>
+                          </div>
                         </div>
-                        <MaterialsTab />
+                        <MaterialsTab 
+                          language={selectedLanguage}
+                          model={selectedModel}
+                          tone={selectedTone}
+                        />
                       </div>
                     )}
                     {activeView === 'questions' && (
                       <div>
-                        <div className="flex items-center gap-3 mb-6">
-                          <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0-3c-1.045 0-1.979.7-2.132 1.75m0 0c.211.578.813 1 1.5 1M12 11.5v-1m-5.5 3.5V13h2v2.5a1.5 1.5 0 11-3 0z"></path>
-                          </svg>
-                          <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">Generated Questions</h2>
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center gap-3">
+                            <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/>
+                              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                              <line x1="12" x2="12.01" y1="17" y2="17"/>
+                            </svg>
+                            <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">Generated Questions</h2>
+                          </div>
+                          <div className="hidden sm:flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                            <span className="px-2.5 py-1 bg-orange-50 border border-orange-200 rounded-full">{languages.find(l => l.value === selectedLanguage)?.label}</span>
+                            <span className="px-2.5 py-1 bg-orange-50 border border-orange-200 rounded-full">{tones.find(t => t.value === selectedTone)?.label}</span>
+                          </div>
                         </div>
-                        <QuestionsTab />
+                        <QuestionsTab 
+                          language={selectedLanguage}
+                          model={selectedModel}
+                          tone={selectedTone}
+                        />
                       </div>
                     )}
                     {activeView === 'quiz' && (

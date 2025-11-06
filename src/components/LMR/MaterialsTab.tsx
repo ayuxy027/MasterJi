@@ -9,7 +9,13 @@ interface Material {
   keywords: string[];
 }
 
-const MaterialsTab: React.FC = () => {
+interface MaterialsTabProps {
+  language?: string;
+  model?: string;
+  tone?: string;
+}
+
+const MaterialsTab: React.FC<MaterialsTabProps> = ({ language, model, tone }) => {
   const mockMaterials: Material[] = [
     { 
       id: 1, 

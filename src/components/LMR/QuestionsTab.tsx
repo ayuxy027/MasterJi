@@ -8,7 +8,13 @@ interface QuestionAnswer {
   answer: string;
 }
 
-const QuestionsTab: React.FC = () => {
+interface QuestionsTabProps {
+  language?: string;
+  model?: string;
+  tone?: string;
+}
+
+const QuestionsTab: React.FC<QuestionsTabProps> = ({ language, model, tone }) => {
   const mockQuestions: QuestionAnswer[] = [
     { 
       id: 1, 
