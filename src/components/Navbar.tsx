@@ -90,79 +90,83 @@ const Navbar: React.FC = () => {
             </header>
 
             {/* Mobile Menu */}
-            {isMenuOpen && (
-                <>
-                    {/* Backdrop */}
-                    <div
-                        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
-                        onClick={closeMenu}
-                    />
+            <>
+                {/* Backdrop */}
+                <div
+                    className={`fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300 ease-out ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                        }`}
+                    onClick={closeMenu}
+                />
 
-                    {/* Mobile Menu Panel */}
-                    <div className="fixed top-24 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bg-white/95 backdrop-blur-md border-2 border-orange-200/60 rounded-2xl shadow-xl z-50 md:hidden py-4 px-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <nav className="flex flex-col gap-2">
-                            <a
-                                className="flex items-center gap-3 px-4 py-3 text-orange-500 font-medium rounded-xl hover:bg-orange-50 hover:text-orange-600 transition-all"
-                                href="/chat"
-                                onClick={closeMenu}
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V2H8" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 11v2" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2 12h2" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M20 12h2" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M20 16a2 2 0 0 1-2 2H8.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 4 20.286V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 11v2" />
-                                </svg>
-                                Chat
-                            </a>
-                            <a
-                                className="flex items-center gap-3 px-4 py-3 text-orange-500 font-medium rounded-xl hover:bg-orange-50 hover:text-orange-600 transition-all"
-                                href="/lmr"
-                                onClick={closeMenu}
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                LMR
-                            </a>
-                            <a
-                                className="flex items-center gap-3 px-4 py-3 text-orange-500 font-medium rounded-xl hover:bg-orange-50 hover:text-orange-600 transition-all"
-                                href="/weave"
-                                onClick={closeMenu}
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13.44 4.442 17.082A2 2 0 0 0 4.982 21H19a2 2 0 0 0 .558-3.921l-1.115-.32A2 2 0 0 1 17 14.837V7.66"></path>
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m7 10.56 12.558-3.642A2 2 0 0 0 19.018 3H5a2 2 0 0 0-.558 3.921l1.115.32A2 2 0 0 1 7 9.163v7.178"></path>
-                                </svg>
-                                Weave
-                            </a>
-                            <a
-                                className="flex items-center gap-3 px-4 py-3 text-orange-500 font-medium rounded-xl hover:bg-orange-50 hover:text-orange-600 transition-all"
-                                href="/board"
-                                onClick={closeMenu}
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"></path>
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2 6h4"></path>
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2 10h4"></path>
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2 14h4"></path>
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2 18h4"></path>
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"></path>
-                                </svg>
-                                Whiteboard
-                            </a>
-                            <a
-                                className="flex items-center justify-center gap-2 mt-2 px-4 py-3 bg-orange-400 text-white font-semibold rounded-xl hover:bg-orange-500 transition-all shadow-md"
-                                href="/chat"
-                                onClick={closeMenu}
-                            >
-                                Start Learning
-                            </a>
-                        </nav>
-                    </div>
-                </>
-            )}
+                {/* Mobile Menu Panel */}
+                <div
+                    className={`fixed top-20 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm bg-white/95 backdrop-blur-md border-2 border-orange-200/60 rounded-xl shadow-xl z-50 md:hidden py-2.5 px-3 transition-all duration-300 ease-out ${isMenuOpen
+                        ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto'
+                        : 'opacity-0 -translate-y-4 scale-95 pointer-events-none'
+                        }`}
+                >
+                    <nav className="flex flex-col gap-1">
+                        <a
+                            className="flex items-center gap-2.5 px-3 py-2 text-orange-500 text-sm font-medium rounded-lg hover:bg-orange-50 hover:text-orange-600 transition-all"
+                            href="/chat"
+                            onClick={closeMenu}
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V2H8" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 11v2" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M2 12h2" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M20 12h2" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M20 16a2 2 0 0 1-2 2H8.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 4 20.286V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 11v2" />
+                            </svg>
+                            Chat
+                        </a>
+                        <a
+                            className="flex items-center gap-2.5 px-3 py-2 text-orange-500 text-sm font-medium rounded-lg hover:bg-orange-50 hover:text-orange-600 transition-all"
+                            href="/lmr"
+                            onClick={closeMenu}
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            LMR
+                        </a>
+                        <a
+                            className="flex items-center gap-2.5 px-3 py-2 text-orange-500 text-sm font-medium rounded-lg hover:bg-orange-50 hover:text-orange-600 transition-all"
+                            href="/weave"
+                            onClick={closeMenu}
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13.44 4.442 17.082A2 2 0 0 0 4.982 21H19a2 2 0 0 0 .558-3.921l-1.115-.32A2 2 0 0 1 17 14.837V7.66"></path>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m7 10.56 12.558-3.642A2 2 0 0 0 19.018 3H5a2 2 0 0 0-.558 3.921l1.115.32A2 2 0 0 1 7 9.163v7.178"></path>
+                            </svg>
+                            Weave
+                        </a>
+                        <a
+                            className="flex items-center gap-2.5 px-3 py-2 text-orange-500 text-sm font-medium rounded-lg hover:bg-orange-50 hover:text-orange-600 transition-all"
+                            href="/board"
+                            onClick={closeMenu}
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"></path>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2 6h4"></path>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2 10h4"></path>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2 14h4"></path>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2 18h4"></path>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"></path>
+                            </svg>
+                            Whiteboard
+                        </a>
+                        <a
+                            className="flex items-center justify-center gap-2 mt-1.5 px-3 py-2 bg-orange-400 text-white text-sm font-semibold rounded-lg hover:bg-orange-500 transition-all shadow-md"
+                            href="/chat"
+                            onClick={closeMenu}
+                        >
+                            Start Learning
+                        </a>
+                    </nav>
+                </div>
+            </>
         </>
     );
 };
