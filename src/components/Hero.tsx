@@ -1,62 +1,145 @@
+import { useState } from 'react';
+
+const Avatar = ({ src, alt }: { src: string; alt: string }) => {
+    const [imageError, setImageError] = useState(false);
+    
+    return (
+        <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-300 to-orange-500 rounded-full blur-sm opacity-50"></div>
+            {imageError ? (
+                <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-orange-300 to-orange-500 border-2 border-white shadow-md"></div>
+            ) : (
+                <img
+                    src={src}
+                    alt={alt}
+                    className="relative w-10 h-10 rounded-full border-2 border-white shadow-md"
+                    onError={() => setImageError(true)}
+                />
+            )}
+        </div>
+    );
+};
 
 const Herobox = () => {
+    // Fallback gradient backgrounds for missing images
+    const fallbackGradients = [
+        "linear-gradient(135deg, #F97316 0%, #FB923C 50%, #FED7AA 100%)",
+        "linear-gradient(135deg, #FB923C 0%, #F97316 50%, #EA580C 100%)",
+    ];
+
+    const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+        const target = e.target as HTMLImageElement;
+        target.style.display = 'none';
+        const parent = target.parentElement;
+        if (parent) {
+            parent.style.background = fallbackGradients[Math.floor(Math.random() * fallbackGradients.length)];
+        }
+    };
+
     return (
-        <div className="bg-white px-4 lg:px-20">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-6 gap-6 items-stretch">
+        <div className="bg-gradient-to-b from-white via-orange-50/30 to-white px-4 lg:px-20 py-12 relative">
+            {/* Ambient background glow - reduced */}
+            <div 
+                className="absolute inset-0 opacity-30 blur-3xl"
+                style={{
+                    background: 'radial-gradient(circle at center, rgba(251, 146, 60, 0.1) 0%, transparent 70%)'
+                }}
+            ></div>
+            
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-6 gap-8 items-stretch relative z-10">
                 {/* Left Image */}
-                <div className="md:col-span-2 relative rounded-2xl overflow-hidden">
-                    <div className="absolute inset-0 z-0">
+                <div className="md:col-span-2 relative group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 via-orange-300/15 to-transparent rounded-3xl blur-xl opacity-40 group-hover:opacity-50 transition-opacity duration-500"></div>
+                    <div className="relative h-full min-h-[400px] rounded-3xl overflow-hidden"
+                         style={{
+                             maskImage: 'radial-gradient(ellipse 80% 100% at center, black 60%, transparent 100%)',
+                             WebkitMaskImage: 'radial-gradient(ellipse 80% 100% at center, black 60%, transparent 100%)',
+                         }}>
+                        <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-orange-400 to-orange-300"></div>
                         <img
-                            src="https://trainingindustry.com/content/uploads/2021/07/8.10.21_Content_Dev_1182967367.jpg"
+                            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=600&fit=crop&q=80"
                             alt="Teaching Session"
-                            className="w-full h-full object-cover rounded-2xl"
+                            className="w-full h-full object-cover opacity-90"
+                            onError={handleImageError}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-dark-800 to-transparent"></div>
+                        {/* Faded edge overlays */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent"></div>
+                        <div className="absolute inset-0 bg-gradient-to-l from-white/20 via-transparent to-transparent"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent"></div>
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/10"></div>
                     </div>
+                    {/* Orangish shadow glow - reduced */}
+                    <div className="absolute -inset-1 bg-gradient-to-br from-orange-400/15 to-orange-600/10 rounded-3xl blur-xl -z-10 opacity-50"></div>
                 </div>
+
                 {/* Center Cards */}
                 <div className="md:col-span-2 flex flex-col gap-6">
                     {/* Top Card - Avatars + Text */}
-                    <div className="bg-orange-100 rounded-2xl p-6 shadow-md flex flex-col justify-center h-full">
-                        <div className="flex mb-4 -space-x-3">
-                            {[
-                                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqkUYrITWyI8OhPNDHoCDUjGjhg8w10_HRqg&s",
-                                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwQQTS4NPqnCGbJPd4x7O_YJNOJ5gH6KkejH3nhVfIhxwwJPHEotjPs0VCpGg-UcybvxM&usqp=CAU",
-                                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxapDwCeVLL0T69nhwV_BgqH9lztNDYQGcCbUVKHMgITKzGDlPsa55HS-6dqUdC8Qt5VU&usqp=CAU",
-                                "https://www.pathways.health/wp-content/uploads/2023/08/circle-profile-picgfdgaf.jpg",
-                            ].map((src, idx) => (
-                                <img
-                                    key={idx}
-                                    src={src}
-                                    alt="Avatar"
-                                    className="w-10 h-10 rounded-full border-2 border-white"
-                                />
-                            ))}
+                    <div className="relative group">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-300/25 via-orange-400/20 to-orange-500/15 rounded-3xl blur-md opacity-40 group-hover:opacity-50 transition-opacity duration-500"></div>
+                        <div className="relative bg-gradient-to-br from-orange-50 via-orange-100/90 to-orange-50 rounded-3xl p-6 flex flex-col justify-center h-full backdrop-blur-sm border border-orange-200/50 shadow-lg"
+                             style={{
+                                 maskImage: 'radial-gradient(ellipse 90% 90% at center, black 70%, transparent 100%)',
+                                 WebkitMaskImage: 'radial-gradient(ellipse 90% 90% at center, black 70%, transparent 100%)',
+                             }}>
+                            <div className="flex mb-4 -space-x-3">
+                                {[
+                                    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces&q=80",
+                                    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces&q=80",
+                                    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=faces&q=80",
+                                    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces&q=80",
+                                ].map((src, idx) => (
+                                    <Avatar key={idx} src={src} alt="Teacher Avatar" />
+                                ))}
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-800 leading-relaxed">
+                                We have 40+ <br /> Professional Teachers
+                            </h3>
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-800">
-                            We have 40+ <br /> Professional Teachers
-                        </h3>
                     </div>
 
                     {/* Bottom Card - Quote */}
-                    <div className="bg-orange-400 rounded-2xl p-6 px-10 shadow-md flex flex-col justify-center h-full">
-                        <p className="text-xl font-semibold text-gray-100 leading-relaxed">
-                            “Believe in yourself, <br />
-                            keep learning, and success will follow.”
-                        </p>
-                        <div className="mt-4">
-                            <p className="font-semibold text-gray-100">Anon</p>
+                    <div className="relative group">
+                        <div className="absolute -inset-0.5 bg-gradient-to-br from-orange-400/30 via-orange-500/25 to-orange-600/20 rounded-3xl blur-lg opacity-40 group-hover:opacity-50 transition-opacity duration-500"></div>
+                        <div className="relative bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-3xl p-6 px-10 flex flex-col justify-center h-full backdrop-blur-sm border border-orange-300/30 shadow-xl"
+                             style={{
+                                 maskImage: 'radial-gradient(ellipse 90% 90% at center, black 70%, transparent 100%)',
+                                 WebkitMaskImage: 'radial-gradient(ellipse 90% 90% at center, black 70%, transparent 100%)',
+                             }}>
+                            <p className="text-xl font-semibold text-white leading-relaxed drop-shadow-sm">
+                                "Believe in yourself, <br />
+                                keep learning, and success will follow."
+                            </p>
+                            <div className="mt-4">
+                                <p className="font-semibold text-white/90 drop-shadow-sm">Anon</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Right Image */}
-                <div className="md:col-span-2">
-                    <img
-                        src="https://media.istockphoto.com/id/1438634414/photo/business-women-laptop-and-and-happy-team-in-office-for-web-design-collaboration-and-training.jpg?s=612x612&w=0&k=20&c=8e5Wj1tvb4thQCJixGcDRztDtvmuw8x0sO1Fvx8SKyI="
-                        alt="Student Learning"
-                        className="w-full h-full object-cover rounded-2xl"
-                    />
+                <div className="md:col-span-2 relative group">
+                    <div className="absolute inset-0 bg-gradient-to-bl from-orange-400/20 via-orange-300/15 to-transparent rounded-3xl blur-xl opacity-40 group-hover:opacity-50 transition-opacity duration-500"></div>
+                    <div className="relative h-full min-h-[400px] rounded-3xl overflow-hidden"
+                         style={{
+                             maskImage: 'radial-gradient(ellipse 80% 100% at center, black 60%, transparent 100%)',
+                             WebkitMaskImage: 'radial-gradient(ellipse 80% 100% at center, black 60%, transparent 100%)',
+                         }}>
+                        <div className="absolute inset-0 bg-gradient-to-bl from-orange-500 via-orange-400 to-orange-300"></div>
+                        <img
+                            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&h=600&fit=crop&q=80"
+                            alt="Student Learning"
+                            className="w-full h-full object-cover opacity-90"
+                            onError={handleImageError}
+                        />
+                        {/* Faded edge overlays */}
+                        <div className="absolute inset-0 bg-gradient-to-l from-white/20 via-transparent to-transparent"></div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent"></div>
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/10"></div>
+                    </div>
+                    {/* Orangish shadow glow - reduced */}
+                    <div className="absolute -inset-1 bg-gradient-to-bl from-orange-400/15 to-orange-600/10 rounded-3xl blur-xl -z-10 opacity-50"></div>
                 </div>
             </div>
         </div>
