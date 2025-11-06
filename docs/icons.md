@@ -1,4 +1,4 @@
-# MasterJi Icon System
+# MasterG Icon System
 
 ## Current Navbar Icons
 
@@ -171,11 +171,21 @@
 ```
 
 ### 16. Whiteboard Icon
-- **Concept**: Pen and canvas representing a digital drawing/writing space
+- **Concept:** Pen and canvas representing a digital drawing/writing space
 - **SVG Code**:
 ```svg
 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+</svg>
+```
+
+### 17. Weave (Presentation Generator) Icon
+- **Concept:** Yarn spool representing weaving together ideas into a presentation
+- **SVG Code**:
+```svg
+<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13.44 4.442 17.082A2 2 0 0 0 4.982 21H19a2 2 0 0 0 .558-3.921l-1.115-.32A2 2 0 0 1 17 14.837V7.66"></path>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m7 10.56 12.558-3.642A2 2 0 0 0 19.018 3H5a2 2 0 0 0-.558 3.921l1.115.32A2 2 0 0 1 7 9.163v7.178"></path>
 </svg>
 ```
 

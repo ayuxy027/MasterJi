@@ -1,9 +1,9 @@
-# MasterJi - AI-Powered Multilingual Educational Platform
+# MasterG - AI-Powered Multilingual Educational Platform
 
 ## Product Overview
-MasterJi is an advanced multilingual educational platform that leverages AI to provide personalized learning experiences across 22 Indian languages. Built with a focus on accessibility and cultural relevance, it serves students in rural and resource-constrained environments.
+MasterG is an advanced multilingual educational platform that leverages AI to provide personalized learning experiences across 22 Indian languages. Built with a focus on accessibility and cultural relevance, it serves students in rural and resource-constrained environments.
 
-## Core Features
+## Core Featuresupdate the navbar app.tsx
 
 ### 1. Adaptive AI Chat Interface with Multiple Modes
 
@@ -48,12 +48,13 @@ MasterJi is an advanced multilingual educational platform that leverages AI to p
 - Practice test creation
 - Concept mapping and topic clustering
 
-### 3. Multilingual Image Generation System
+### 3. Educational Posters System
 
 **Description:** AI-powered image generation specifically tailored for educational content in the Indian context.
 
 **Functionality:**
-- Generates 3 educational posters in a grid format
+- Category selection for educational themes
+- Custom prompt input for specific content needs
 - Context-aware image generation relevant to Indian educational themes
 - Cultural and regional sensitivity in visual content
 - Multilingual text integration in generated images
@@ -61,11 +62,63 @@ MasterJi is an advanced multilingual educational platform that leverages AI to p
 - Customizable poster templates for different subjects
 
 **Output Format:**
-- 3 poster grid layout
+- Grid layout display
 - High-resolution educational posters
 - Subject-specific visual aids (science, math, social studies, etc.)
 - Cultural context integration in visuals
 - Accessibility considerations (color contrast, visual clarity)
+
+### 4. AI-Enhanced Whiteboard (Board)
+
+**Description:** A sophisticated interactive canvas that combines drawing tools with AI assistance for educational purposes, particularly for math problem solving and collaborative learning.
+
+**Functionality:**
+- Figma/Excalidraw-like interface with pen, pencil, eraser, and sticky notes functionality
+- Real-time AI monitoring of canvas for contextual recommendations and operations
+- Multilingual support for text annotations and feedback
+- Handwriting recognition for mathematical equations and text conversion
+- Voice commands for canvas operations (future)
+- Collaborative features for group learning (future)
+- Offline support for continued learning without internet connectivity
+- Query-based content generation with AI integration
+- Text boxes and note-taking capabilities
+- Zoom and pan functionality for detailed work
+
+**Advanced Features:**
+- Canvas dock with comprehensive toolset
+- Pen, eraser, select, text, and sticky note tools
+- Color and stroke width customization
+- Undo/redo functionality
+- Canvas clearing with confirmation
+- Viewport management for large canvases
+- Touch support for mobile/iPad users
+- Dotted background for visual guidance
+- AI-powered query processing for content generation
+
+### 5. Weave - Personalized Presentation Generator (Planned Feature)
+
+**Description:** An intelligent, adaptive, and teacher-friendly presentation generation platform that creates personalized, content-aware, and multimodal slides from natural language prompts.
+
+**Functionality:**
+- **Personalized Content Generation:** Generate complete slide decks from teacher prompts or lesson outlines
+- **Audience Adaptation:** Tailor content depth and style for different audience types (school, college, training, professional)
+- **Language Complexity Adjustment:** Adjust language complexity, tone, and examples to match student proficiency levels
+- **Intelligent Media Integration:** Automatically fetch contextually relevant images, diagrams, and infographics
+- **Adaptive Presentation Structuring:** Organize slides into logical sections (Introduction, Main Content, Examples, Summary)
+- **Template Customization:** Provide multiple presentation styles (academic, storytelling, business pitch, technical briefing)
+- **Real-Time Assistance:** Suggest additional teaching materials (quizzes, case studies, discussion prompts)
+- **Speaker Notes Generation:** Automatically generate speaker notes from slide content
+- **Cultural Sensitivity:** Support for region-specific examples and localization
+
+**Key Features:**
+- Natural language prompt to slide generation
+- Multilingual support across 22+ Indian languages
+- Teacher-friendly interface with full control over presentation style
+- Export compatibility with common formats (PowerPoint, PDF, Google Slides)
+- 3D visualization support for complex concepts (future implementation)
+- Voice prompt support for slide generation (future implementation)
+- Multimodal content integration (text, images, charts, 3D objects)
+- Cultural and linguistic adaptation for regional relevance
 
 ## Technical Architecture
 
@@ -95,6 +148,20 @@ MasterJi is an advanced multilingual educational platform that leverages AI to p
 - Multi-modal learning (text, audio, images)
 - Progress tracking and analytics
 
+## Feature Implementation Status
+
+### Current State
+- **AI Chat:** ✅ Fully Implemented - All three modes operational with multilingual support
+- **LMR Tools:** 🔄 In Progress - UI complete, core PDF processing and AI integration in development
+- **Posters:** ✅ Implemented - Category selection and generation interface complete
+- **Whiteboard (Board):** ✅ Highly Advanced - Complete with drawing tools, AI integration, and canvas functionality
+- **Weave (Planned):** 📋 In Development - Presentation generator platform to be implemented
+
+### Navigation Updates (Planned)
+- **Navbar Changes:** Planning to move Posters from main navigation to hero section
+- **New Addition:** Weave will be added to main navigation menu
+- **Feature Prioritization:** Weave as the new primary creation tool for educators
+
 ## Future Enhancements
 
 ### Vector Database Integration
@@ -107,16 +174,6 @@ MasterJi is an advanced multilingual educational platform that leverages AI to p
 - AR/VR integration for immersive learning
 - Speech-to-text in regional languages
 - Handwriting recognition for mathematical equations
-
-### Whiteboard Feature (AI-Enhanced Canvas)
-- Interactive canvas interface for students to practice math problems and take notes
-- Figma/Excalidraw-like interface with pen, pencil, eraser, and sticky notes functionality
-- Real-time AI monitoring of canvas for contextual recommendations and operations
-- Multilingual support for text annotations and feedback
-- Handwriting recognition for mathematical equations and text conversion
-- Voice commands for canvas operations
-- Collaborative features for group learning
-- Offline support for continued learning without internet connectivity
 
 ## Success Metrics
 
@@ -137,13 +194,20 @@ MasterJi is an advanced multilingual educational platform that leverages AI to p
 - Core chat interface with three modes
 - Basic multilingual support
 - PDF rendering and processing
+- Whiteboard with AI integration
 - Image generation capabilities
 
-### Phase 2 (Future)
+### Phase 2 (Next)
+- Complete Weave presentation generator implementation
+- Advanced LMR tool functionality (PDF processing, questions)
 - Vector database integration
+- Enhanced whiteboard collaboration features
+
+### Phase 3 (Future)
 - Advanced personalization algorithms
 - Offline content synchronization
 - Enhanced cultural adaptation
+- Voice command integration for whiteboard and presentations
 
 ## Competitive Advantages
 
@@ -152,3 +216,5 @@ MasterJi is an advanced multilingual educational platform that leverages AI to p
 3. **Resource Efficiency:** Optimized for low-resource devices while maintaining quality
 4. **Adaptive Learning:** Sophisticated personalization that changes teaching style based on user profile
 5. **Fast Inference:** Leveraging Groq's hardware for real-time educational assistance
+6. **Comprehensive Toolset:** Integrated learning tools (chat, materials, presentations, whiteboard) in one platform
+7. **Educator-Focused Design:** Specialized tools like Weave presentation generator for teacher efficiency
