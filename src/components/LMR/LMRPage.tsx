@@ -113,10 +113,10 @@ const LMRPage: React.FC = () => {
           </p>
         </div>
         
-        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-stretch">
           {/* Sidebar - Controls */}
           <aside className="lg:w-80 xl:w-96 flex-shrink-0">
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border-2 border-orange-200/60 p-5 sm:p-6 sticky top-24 space-y-6 h-fit">
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border-2 border-orange-200/60 p-5 sm:p-6 sticky top-24 space-y-6 h-full">
               {/* Upload Section */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
@@ -247,8 +247,8 @@ const LMRPage: React.FC = () => {
           </aside>
 
           {/* Main Content Area */}
-          <main className="flex-1 min-w-0">
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border-2 border-orange-200/60 overflow-hidden h-fit">
+          <main className="flex-1 min-w-0 flex flex-col">
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border-2 border-orange-200/60 overflow-hidden flex-1 flex flex-col">
               {/* View Navigation Dock */}
               <div className="bg-orange-100 border-b-2 border-orange-200 p-3 sm:p-4 md:p-5">
                 <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 md:gap-3 max-w-full">
