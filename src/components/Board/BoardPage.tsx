@@ -383,6 +383,162 @@ const BoardPage: React.FC = () => {
     return { x, y };
   };
 
+  // Touch helpers for iPad/mobile
+  const getTouchPos = (touch: any): Point => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const x = (touch.clientX - rect.left) / zoom;
+    const y = (touch.clientY - rect.top) / zoom;
+    return { x, y };
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    // Prevent page scroll/zoom gestures on canvas
+    e.preventDefault();
+
+    if (e.touches.length === 2) {
+      // Two-finger pan
+      setIsPanning(true);
+      setPanStart({ x: e.touches[0].clientX - viewOffset.x, y: e.touches[0].clientY - viewOffset.y });
+      return;
+    }
+
+    const touch = e.touches[0];
+    if (!touch) return;
+    const point = getTouchPos(touch);
+
+    // Select mode hit-test (single finger)
+    if (currentTool === 'select') {
+      for (let i = drawingPaths.length - 1; i >= 0; i--) {
+        if (hitTestPath(point, drawingPaths[i])) {
+          setIsDraggingStroke(true);
+          setDragStrokeIndex(i);
+          setDragStartPoint(point);
+          setOriginalStrokePoints(drawingPaths[i].points.map(p => ({ x: p.x, y: p.y })));
+          return;
+        }
+      }
+      setIsPanning(true);
+      setPanStart({ x: touch.clientX - viewOffset.x, y: touch.clientY - viewOffset.y });
+      return;
+    }
+
+    if (currentTool === 'sticky-note') {
+      const newNote: StickyNote = {
+        id: Date.now().toString(),
+        x: point.x,
+        y: point.y,
+        text: '',
+        color: '#FFEDD5',
+        width: 220,
+        height: 160,
+        ruled: false,
+        fontSize: 14,
+        fontFamily: 'Inter',
+        isBold: false,
+        isItalic: false,
+        isUnderline: false,
+        enableMarkdown: false
+      };
+      setStickyNotes(prev => [...prev, newNote]);
+      setCurrentTool('pen');
+      return;
+    }
+
+    if (currentTool === 'text') {
+      const newTextBox: TextBox = {
+        id: Date.now().toString(),
+        x: point.x,
+        y: point.y,
+        text: '',
+        color: 'transparent',
+        width: 240,
+        height: 100,
+        fontSize: 14,
+        fontFamily: 'Inter',
+        isBold: false,
+        isItalic: false,
+        isUnderline: false
+      };
+      setTextBoxes(prev => [...prev, newTextBox]);
+      setCurrentTool('pen');
+      return;
+    }
+
+    if (['pen', 'eraser'].includes(currentTool)) {
+      setIsDrawing(true);
+      setCurrentPath([point]);
+      lastDrawingPointRef.current = point;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+
+    if (isPanning && e.touches.length >= 1) {
+      setViewOffset({ x: e.touches[0].clientX - panStart.x, y: e.touches[0].clientY - panStart.y });
+      return;
+    }
+
+    if (!isDrawing || !['pen', 'eraser'].includes(currentTool)) return;
+    const touch = e.touches[0];
+    if (!touch) return;
+    const point = getTouchPos(touch);
+    const lastPoint = lastDrawingPointRef.current;
+
+    setCurrentPath(prev => [...prev, point]);
+    lastDrawingPointRef.current = point;
+
+    const canvas = canvasRef.current; if (!canvas) return;
+    const ctx = canvas.getContext('2d'); if (!ctx) return;
+    const toolConfig = getToolById(currentTool); if (!toolConfig) return;
+
+    ctx.save();
+    ctx.translate(viewOffset.x, viewOffset.y);
+    ctx.scale(zoom, zoom);
+    ctx.beginPath();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.miterLimit = 2;
+    ctx.globalCompositeOperation = toolConfig.getCompositeOperation();
+    ctx.strokeStyle = toolConfig.getStrokeStyle(currentColor);
+    ctx.lineWidth = toolConfig.getStrokeWidth(strokeWidth);
+    ctx.globalAlpha = toolConfig.getAlpha();
+
+    if (lastPoint) {
+      const midX = (lastPoint.x + point.x) / 2;
+      const midY = (lastPoint.y + point.y) / 2;
+      ctx.moveTo(lastPoint.x, lastPoint.y);
+      ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, midX, midY);
+      ctx.lineTo(point.x, point.y);
+      ctx.stroke();
+    } else {
+      ctx.arc(point.x, point.y, toolConfig.getStrokeWidth(strokeWidth) / 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.restore();
+  };
+
+  const handleTouchEnd = () => {
+    if (isPanning) { setIsPanning(false); return; }
+    if (!isDrawing) return;
+    setIsDrawing(false);
+    lastDrawingPointRef.current = null;
+    if (currentPath.length > 1) {
+      const toolConfig = getToolById(currentTool); if (!toolConfig) return;
+      const newPath: DrawingPath = { points: [...currentPath], color: currentColor, strokeWidth, tool: currentTool };
+      setDrawingPaths(prev => [...prev, newPath]);
+      setCurrentPath([]);
+      redrawCanvas();
+    } else {
+      setCurrentPath([]);
+      redrawCanvas();
+    }
+  };
+
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     // Handle panning with middle mouse button or shift + click
     if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
@@ -706,7 +862,8 @@ const BoardPage: React.FC = () => {
           ref={canvasRef}
           className={`absolute inset-0 cursor-none ${isPanning ? 'cursor-grabbing' : ''}`}
           style={{
-            cursor: 'none'
+            cursor: 'none',
+            touchAction: 'none' // Prevent browser scrolling/zooming on touch
           }}
           onMouseDown={handleMouseDown}
           onMouseMove={(e) => {
@@ -721,6 +878,10 @@ const BoardPage: React.FC = () => {
             handleMouseUp();
             setShowCustomCursor(false);
           }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
         />
       </div>
 
