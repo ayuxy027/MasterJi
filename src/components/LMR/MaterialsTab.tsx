@@ -39,30 +39,40 @@ const MaterialsTab: React.FC = () => {
 
   return (
     <div>
-      <h3 className="text-xl font-bold text-orange-800 mb-6">Generated Learning Materials</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockMaterials.map((material) => (
-          <div key={material.id} className="bg-white rounded-xl border border-orange-200 overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300">
-            <div className="bg-gradient-to-r from-orange-100 to-orange-50 p-5 border-b border-orange-200">
-              <h4 className="font-bold text-orange-800 text-lg">{material.title}</h4>
-              <div className="flex gap-3 mt-3">
-                <span className="text-xs bg-orange-200 text-orange-800 px-3 py-1 rounded-full">{material.subject}</span>
-                <span className="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full">{material.grade}</span>
-              </div>
-            </div>
-            <div className="p-5">
-              <p className="text-gray-700 mb-4">{material.content}</p>
-              <div className="flex flex-wrap gap-2">
-                {material.keywords.map((keyword, idx) => (
-                  <span key={idx} className="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full border border-orange-200">
-                    {keyword}
-                  </span>
-                ))}
-              </div>
-            </div>
+      {mockMaterials.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-orange-100 flex items-center justify-center">
+            <svg className="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
           </div>
-        ))}
-      </div>
+          <p className="text-gray-600">No materials generated yet. Upload a document to get started.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {mockMaterials.map((material) => (
+            <div key={material.id} className="bg-white rounded-xl border-2 border-orange-200 overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:border-orange-300">
+              <div className="bg-orange-50 p-4 sm:p-5 border-b-2 border-orange-200">
+                <h4 className="font-semibold text-gray-800 text-base sm:text-lg mb-3">{material.title}</h4>
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-xs bg-orange-100 text-orange-700 px-2.5 py-1 rounded-full border border-orange-200 font-medium">{material.subject}</span>
+                  <span className="text-xs bg-white text-orange-600 px-2.5 py-1 rounded-full border border-orange-200 font-medium">{material.grade}</span>
+                </div>
+              </div>
+              <div className="p-4 sm:p-5">
+                <p className="text-sm sm:text-base text-gray-700 mb-4 leading-relaxed">{material.content}</p>
+                <div className="flex flex-wrap gap-2">
+                  {material.keywords.map((keyword, idx) => (
+                    <span key={idx} className="text-xs bg-orange-50 text-orange-700 px-2.5 py-1 rounded-full border border-orange-200 font-medium">
+                      {keyword}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
