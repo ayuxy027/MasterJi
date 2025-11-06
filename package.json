@@ -5,14 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite --open",
+    "ayush": "npm install && tsx src/console/ayush.ts && vite --open",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "clean": "rm -rf node_modules && rm -rf package-lock.json && rm -rf dist && npm cache clean --force",
+    "clean": "rm -rf node_modules && rm -rf package-lock.json && rm -rf dist && npm cache clean --force && rm -rf .vercel",
+    "cleanup": "npx modclean --run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.16",
+    "@tailwindcss/vite": "^4.1.17",
     "lucide-react": "^0.552.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -30,9 +32,9 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
-    "tailwindcss": "^4.1.16",
+    "tailwindcss": "^4.1.17",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.3",
-    "vite": "^7.2.0"
+    "vite": "^7.2.1"
   }
 }
