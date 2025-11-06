@@ -147,7 +147,6 @@ const Landing = () => {
                                     style={{
                                         WebkitTextStroke: '2.75px #FB923C',
                                         WebkitTextFillColor: 'transparent',
-                                        textStroke: '2.75px #FB923C',
                                         color: 'transparent',
                                         paintOrder: 'stroke fill'
                                     }}
