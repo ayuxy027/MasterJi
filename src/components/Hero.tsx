@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Avatar = ({ src, alt }: { src: string; alt: string }) => {
     const [imageError, setImageError] = useState(false);
@@ -74,9 +75,9 @@ const Herobox = () => {
                         <h3 className="text-lg font-semibold text-gray-800 leading-relaxed mb-3">
                             Transform Your Study <br /> Materials with AI
                         </h3>
-                        <a href="/lmr" className="inline-block bg-orange-400 text-white border-2 border-orange-400 font-semibold px-4 py-2 rounded-lg text-sm hover:bg-orange-500 hover:border-orange-500 transition-all duration-300 w-fit">
+                        <Link to="/lmr" className="inline-block bg-orange-400 text-white border-2 border-orange-400 font-semibold px-4 py-2 rounded-lg text-sm hover:bg-orange-500 hover:border-orange-500 transition-all duration-300 w-fit">
                             Try LMR Tools →
-                        </a>
+                        </Link>
                     </div>
 
                     {/* Bottom Card - Weave */}
@@ -118,14 +119,11 @@ const Landing = () => {
                     {/* Header Section */}
                     <div className="text-center mb-16 relative z-10">
                         <span className="inline-flex items-center justify-center gap-2 mb-4 px-4 py-2 border-2 text-white border-orange-400 bg-orange-400 rounded-full text-[12px] md:text-sm font-medium">
-                            <svg className="text-sm md:text-base w-3 h-3" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M8 1L10.5 5.5L15.5 6L11.5 9.5L12.5 14.5L8 11.5L3.5 14.5L4.5 9.5L0.5 6L5.5 5.5L8 1Z" />
-                            </svg>
-                            <svg className="text-sm md:text-base w-3 h-3 -mx-0.5" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M8 1L10.5 5.5L15.5 6L11.5 9.5L12.5 14.5L8 11.5L3.5 14.5L4.5 9.5L0.5 6L5.5 5.5L8 1Z" />
-                            </svg>
-                            <svg className="text-sm md:text-base w-3 h-3" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M8 1L10.5 5.5L15.5 6L11.5 9.5L12.5 14.5L8 11.5L3.5 14.5L4.5 9.5L0.5 6L5.5 5.5L8 1Z" />
+                            <svg className="text-sm md:text-base w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.236 22a3 3 0 0 0-2.2-5"/>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M16 20a3 3 0 0 1 3-3h1a2 2 0 0 0 2-2v-2a4 4 0 0 0-4-4V4"/>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M18 13h.01"/>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M18 6a4 4 0 0 0-4 4 7 7 0 0 0-7 7c0-5 4-5 4-10.5a4.5 4.5 0 1 0-9 0 2.5 2.5 0 0 0 5 0C7 10 3 11 3 17c0 2.8 2.2 5 5 5h10"/>
                             </svg>
                             <span>|</span>
                             <span>Trusted by 500+ students</span>
@@ -183,11 +181,11 @@ const Landing = () => {
                         {/* Buttons */}
                         <div className="flex flex-row gap-4 justify-center items-center">
                             <button className="bg-orange-400 flex items-center gap-x-2 text-white border-2 border-orange-400 font-bold px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transform transition-all duration-300">
-                                Start Learning
+                                Chat Now!
                             </button>
-                            <button className="border-2 border-orange-400 text-orange-400 hover:bg-orange-100 hover:text-gray-800 font-semibold px-8 py-3 rounded-lg transition-all duration-300">
-                                Learn More
-                            </button>
+                            <Link to="/board" className="border-2 border-orange-400 text-orange-400 hover:bg-orange-100 hover:text-gray-800 font-semibold px-8 py-3 rounded-lg transition-all duration-300">
+                                Try Board
+                            </Link>
                         </div>
                     </div>
 

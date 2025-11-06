@@ -28,8 +28,13 @@ const Navbar: React.FC = () => {
                 className="max-md:absolute max-md:top-0 max-md:left-0 max-md:overflow-hidden items-center justify-center max-md:h-full max-md:w-0 transition-[width] bg-white/80 backdrop-blur flex-col md:flex-row flex gap-8 text-orange-500 text-sm font-medium"
             >
                 <a className="hover:text-orange-600 flex items-center gap-2" href="/chat">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V2H8" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11v2" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2 12h2" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M20 12h2" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M20 16a2 2 0 0 1-2 2H8.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 4 20.286V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 11v2" />
                     </svg>
                     Chat
                 </a>
