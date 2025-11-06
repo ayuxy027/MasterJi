@@ -186,9 +186,9 @@ const Landing = () => {
                                 <span 
                                     className="text-orange-400 font-semibold"
                                     style={{
-                                        WebkitTextStroke: '2px #FB923C',
+                                        WebkitTextStroke: '2.75px #FB923C',
                                         WebkitTextFillColor: 'transparent',
-                                        textStroke: '2px #FB923C',
+                                        textStroke: '2.75px #FB923C',
                                         color: 'transparent',
                                         paintOrder: 'stroke fill'
                                     }}
@@ -198,10 +198,19 @@ const Landing = () => {
                                 <span className="inline-flex items-center mx-3 align-middle">
                                     <span className="inline-flex items-center justify-center border-2 border-orange-400 rounded-full px-4 py-2 md:px-6 md:py-3 transform rotate-6 origin-center">
                                         <svg className="text-lg md:text-3xl text-orange-400 w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M8 4c-2.2 0-4 1.8-4 4v16c0 2.2 1.8 4 4 4h16c2.2 0 4-1.8 4-4V8c0-2.2-1.8-4-4-4H8z" />
-                                            <path d="M8 12h16m-16 4h12m-12 4h8" />
-                                            <circle cx="24" cy="24" r="4.5" />
-                                            <path d="M24 22v4m-2-2h4" strokeWidth="1.2" />
+                                            <path d="M16 6.67a4 4 0 1 0-7.996.167 5.33 5.33 0 0 0-3.368 7.693 5.33 5.33 0 0 0 .741 8.784A5.33 5.33 0 1 0 16 24Z"/>
+                                            <path d="M12 17.33a6 6 0 0 0 4-5.33"/>
+                                            <path d="M8.004 6.833a4 4 0 0 0 .531 1.833"/>
+                                            <path d="M4.636 14.528a5.33 5.33 0 0 1 .78-.528"/>
+                                            <path d="M8 24a5.33 5.33 0 0 1-2.623-.688"/>
+                                            <path d="M16 17.33h5.33"/>
+                                            <path d="M16 24h8a2.67 2.67 0 0 1 2.67 2.67v1.33"/>
+                                            <path d="M16 10.67h10.67"/>
+                                            <path d="M21.33 10.67V6.67a2.67 2.67 0 0 1 2.67-2.67"/>
+                                            <circle cx="21.33" cy="17.33" r=".67"/>
+                                            <circle cx="24" cy="4" r=".67"/>
+                                            <circle cx="26.67" cy="28" r=".67"/>
+                                            <circle cx="26.67" cy="10.67" r=".67"/>
                                         </svg>
                                     </span>
                                 </span>
