@@ -23,13 +23,15 @@ const LMRPage: React.FC = () => {
         </div>
         
         <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border-2 border-orange-200/60 overflow-hidden">
-          <TabNavigation 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab}
-            hasUploadedFile={!!uploadedFile && !isProcessing}
-          />
+          <div className="relative z-10">
+            <TabNavigation 
+              activeTab={activeTab} 
+              setActiveTab={setActiveTab}
+              hasUploadedFile={!!uploadedFile && !isProcessing}
+            />
+          </div>
           
-          <div className="p-4 sm:p-6 md:p-8 min-h-[400px]">
+          <div className="p-4 sm:p-6 md:p-8 min-h-[400px] relative z-0">
             {activeTab === 'upload' && (
               <div>
                 <UploadSection 

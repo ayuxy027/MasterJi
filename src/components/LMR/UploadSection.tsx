@@ -29,7 +29,7 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   return (
     <div className="mb-6">
       <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">
-        Upload for <span className="text-orange-400">Last Minute Recall</span>
+        Upload documents for <span className="text-orange-400">Last Minute Recall</span>
       </h2>
       
       <div 
