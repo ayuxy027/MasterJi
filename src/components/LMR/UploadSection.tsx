@@ -28,7 +28,9 @@ const UploadSection: React.FC<UploadSectionProps> = ({
 
   return (
     <div className="mb-6">
-      <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">Upload Learning Material</h2>
+      <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">
+        Upload for <span className="text-orange-400">Last Minute Recall</span>
+      </h2>
       
       <div 
         className={`border-2 border-dashed rounded-xl p-4 sm:p-6 md:p-8 text-center cursor-pointer transition-all ${
