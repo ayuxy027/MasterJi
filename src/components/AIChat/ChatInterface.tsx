@@ -94,9 +94,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentMode, setCurrentMo
 
   const models = [
     { value: 'deepseek', label: 'DeepSeek R1' },
-    { value: 'groq', label: 'Groq Llama' },
-    { value: 'gemini', label: 'Gemini Pro' },
-    { value: 'claude', label: 'Claude Sonnet' }
+    { value: 'llama', label: ' Llama 4 Scout ' },
+    { value: 'qwen', label: 'Qwen 3 7b' },
+    { value: 'kimi', label: 'Kimi K2 Instruct' }
   ];
 
   const languages = [
@@ -113,27 +113,22 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentMode, setCurrentMo
   return (
     <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border-2 border-orange-200/60 overflow-hidden">
       {/* Chat Header with Integrated Mode Toggle */}
-      <div className="bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 text-white p-4 sm:p-5 md:p-6 relative overflow-hidden">
-        {/* Decorative gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none"></div>
-        
-        <div className="relative z-10">
-          {/* Mode Toggle Buttons - Prominent */}
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-0">
-            {(['study', 'plan', 'ideation'] as const).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setCurrentMode(mode)}
-                className={`px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full capitalize transition-all font-semibold text-xs sm:text-sm md:text-base shadow-lg transform hover:scale-105 ${
-                  currentMode === mode
-                    ? 'bg-white text-orange-500 hover:bg-orange-50 shadow-xl'
-                    : 'bg-white/10 backdrop-blur-sm text-white/90 hover:bg-white/20 border border-white/20'
-                }`}
-              >
-                {mode} Mode
-              </button>
-            ))}
-          </div>
+      <div className="bg-orange-100 border-b-2 border-orange-200 p-4 sm:p-5 md:p-6">
+        {/* Mode Toggle Buttons - Prominent */}
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+          {(['study', 'plan', 'ideation'] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setCurrentMode(mode)}
+              className={`px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full capitalize transition-all font-semibold text-xs sm:text-sm md:text-base shadow-md transform hover:scale-105 ${
+                currentMode === mode
+                  ? 'bg-orange-400 text-white hover:bg-orange-500 shadow-lg'
+                  : 'bg-white text-orange-600 border-2 border-orange-200 hover:bg-orange-50 hover:border-orange-300'
+              }`}
+            >
+              {mode} Mode
+            </button>
+          ))}
         </div>
       </div>
       
