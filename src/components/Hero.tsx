@@ -55,11 +55,11 @@ const Herobox = () => {
                              maskImage: 'radial-gradient(ellipse 80% 100% at center, black 60%, transparent 100%)',
                              WebkitMaskImage: 'radial-gradient(ellipse 80% 100% at center, black 60%, transparent 100%)',
                          }}>
-                        <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-orange-400 to-orange-300"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-orange-400 to-orange-300 z-0"></div>
                         <img
-                            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=600&fit=crop&q=80"
-                            alt="Teaching Session"
-                            className="w-full h-full object-cover opacity-90"
+                            src="https://images.unsplash.com/photo-1573894999291-f440466112cc?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2070"
+                            alt="Indian Students Learning"
+                            className="absolute inset-0 w-full h-full object-cover opacity-90 z-10"
                             onError={handleImageError}
                         />
                         {/* Faded edge overlays */}
@@ -84,12 +84,12 @@ const Herobox = () => {
                              }}>
                             <div className="flex mb-4 -space-x-3">
                                 {[
-                                    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces&q=80",
-                                    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces&q=80",
-                                    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=faces&q=80",
-                                    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces&q=80",
+                                    "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces&q=80",
+                                    "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=100&h=100&fit=crop&crop=faces&q=80",
+                                    "https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=100&h=100&fit=crop&crop=faces&q=80",
+                                    "https://images.unsplash.com/photo-1619895862022-09114b41f16f?w=100&h=100&fit=crop&crop=faces&q=80",
                                 ].map((src, idx) => (
-                                    <Avatar key={idx} src={src} alt="Teacher Avatar" />
+                                    <Avatar key={idx} src={src} alt="Indian Teacher Avatar" />
                                 ))}
                             </div>
                             <h3 className="text-lg font-semibold text-gray-800 leading-relaxed">
@@ -125,11 +125,11 @@ const Herobox = () => {
                              maskImage: 'radial-gradient(ellipse 80% 100% at center, black 60%, transparent 100%)',
                              WebkitMaskImage: 'radial-gradient(ellipse 80% 100% at center, black 60%, transparent 100%)',
                          }}>
-                        <div className="absolute inset-0 bg-gradient-to-bl from-orange-500 via-orange-400 to-orange-300"></div>
+                        <div className="absolute inset-0 bg-gradient-to-bl from-orange-500 via-orange-400 to-orange-300 z-0"></div>
                         <img
-                            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&h=600&fit=crop&q=80"
-                            alt="Student Learning"
-                            className="w-full h-full object-cover opacity-90"
+                            src="https://images.unsplash.com/photo-1597743622436-c6b5661731e0?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGluZGlhbiUyMGNsYXNzcm9vbXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=900"
+                            alt="Indian Classroom"
+                            className="absolute inset-0 w-full h-full object-cover opacity-90 z-10"
                             onError={handleImageError}
                         />
                         {/* Faded edge overlays */}

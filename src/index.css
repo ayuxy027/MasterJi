@@ -23,8 +23,3 @@ body {
   font-family: inherit;
   letter-spacing: inherit;
 }
-
-/* Custom gradient utilities for ambient effects */
-.bg-gradient-radial {
-  background-image: radial-gradient(circle, var(--tw-gradient-stops));
-}
