@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { DottedBackground, CanvasDock, StickyNote, TextBox } from './index';
-import { getToolById, getEraserCursor, Point, DrawingPath } from './tools';
+import { getToolById, Point, DrawingPath } from './tools';
+import { StickyNote as StickyNoteIcon, Type } from 'lucide-react';
 import { parseAIResponse, extractSections } from '../../utils/jsonParser';
 import { sendMessage } from '../../services/groqClient';
 import MinimizedNavbar from './MinimizedNavbar';
@@ -89,6 +90,10 @@ const BoardPage: React.FC = () => {
   const [dragStrokeIndex, setDragStrokeIndex] = useState<number | null>(null);
   const [dragStartPoint, setDragStartPoint] = useState<Point | null>(null);
   const [originalStrokePoints, setOriginalStrokePoints] = useState<Point[] | null>(null);
+
+  // Custom cursor state
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [showCustomCursor, setShowCustomCursor] = useState(false);
 
 
   // Calculate word count
@@ -655,6 +660,38 @@ const BoardPage: React.FC = () => {
           style={{ background: 'linear-gradient(0deg, rgba(59,130,246,0.06), rgba(59,130,246,0.06))' }} />
       )}
 
+      {/* Custom Cursor */}
+      {showCustomCursor && (() => {
+        let CursorIcon: React.ComponentType<{ className?: string }> | null = null;
+
+        // Get cursor icon based on current tool
+        if (currentTool === 'sticky-note') {
+          CursorIcon = StickyNoteIcon;
+        } else if (currentTool === 'text') {
+          CursorIcon = Type;
+        } else {
+          const toolConfig = getToolById(currentTool);
+          if (toolConfig?.cursor && typeof toolConfig.cursor !== 'string') {
+            CursorIcon = toolConfig.cursor as React.ComponentType<{ className?: string }>;
+          }
+        }
+
+        if (!CursorIcon) return null;
+
+        return (
+          <div
+            className="fixed pointer-events-none z-[100]"
+            style={{
+              left: mousePosition.x,
+              top: mousePosition.y,
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            <CursorIcon className="w-5 h-5 text-orange-500 drop-shadow-lg" />
+          </div>
+        );
+      })()}
+
 
       {/* Canvas Container with transform */}
       <div
@@ -667,15 +704,22 @@ const BoardPage: React.FC = () => {
       >
         <canvas
           ref={canvasRef}
-          className={`absolute inset-0 ${currentTool === 'select' ? 'cursor-pointer' : 'cursor-crosshair'} ${isPanning ? 'cursor-grabbing' : ''}`}
+          className={`absolute inset-0 cursor-none ${isPanning ? 'cursor-grabbing' : ''}`}
           style={{
-            cursor: currentTool === 'eraser' ? getEraserCursor(strokeWidth) : undefined
+            cursor: 'none'
           }}
           onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
+          onMouseMove={(e) => {
+            handleMouseMove(e);
+            // Track mouse position for custom cursor
+            setMousePosition({ x: e.clientX, y: e.clientY });
+            // Show custom cursor for all tools (except when panning)
+            setShowCustomCursor(!isPanning && (currentTool === 'select' || currentTool === 'pen' || currentTool === 'eraser' || currentTool === 'sticky-note' || currentTool === 'text'));
+          }}
           onMouseUp={handleMouseUp}
           onMouseLeave={() => {
             handleMouseUp();
+            setShowCustomCursor(false);
           }}
         />
       </div>

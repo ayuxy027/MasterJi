@@ -23,7 +23,7 @@ export interface ToolProps {
 export interface Tool {
   id: string;
   name: string;
-  cursor?: string;
+  cursor?: string | React.ComponentType<{ className?: string }>;
   getStrokeWidth: (baseWidth: number) => number;
   getStrokeStyle: (color: string) => string;
   getCompositeOperation: () => GlobalCompositeOperation;
