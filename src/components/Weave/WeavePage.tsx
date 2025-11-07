@@ -15,7 +15,7 @@ const WeavePage: React.FC = () => {
   const handleGenerate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!topic.trim()) return;
-    
+
     setIsGenerating(true);
     // Simulate API call
     setTimeout(() => {
@@ -30,7 +30,7 @@ const WeavePage: React.FC = () => {
   };
 
   const updateCustomCriteria = (id: string, field: 'label' | 'value', newValue: string) => {
-    setCustomCriteria(customCriteria.map(criteria => 
+    setCustomCriteria(customCriteria.map(criteria =>
       criteria.id === id ? { ...criteria, [field]: newValue } : criteria
     ));
   };
@@ -58,10 +58,10 @@ const WeavePage: React.FC = () => {
   ];
 
   const presentationStyles = [
-    { value: 'academic', label: 'Academic', description: 'Formal and educational' },
-    { value: 'business', label: 'Business', description: 'Professional and corporate' },
-    { value: 'storytelling', label: 'Storytelling', description: 'Narrative and engaging' },
-    { value: 'technical', label: 'Technical', description: 'Detailed and precise' }
+    { value: 'academic', label: 'Academic', description: 'Formal and educational tone' },
+    { value: 'business', label: 'Business', description: 'Professional and corporate tone' },
+    { value: 'storytelling', label: 'Storytelling', description: 'Narrative and engaging tone' },
+    { value: 'technical', label: 'Technical', description: 'Detailed and precise tone' }
   ];
 
   const audiences = [
@@ -72,39 +72,39 @@ const WeavePage: React.FC = () => {
   ];
 
   const templates = [
-    { 
-      value: 'modern', 
-      label: 'Modern', 
+    {
+      value: 'modern',
+      label: 'Modern',
       description: 'Clean and minimalist',
       preview: 'bg-gradient-to-br from-orange-400 to-orange-600'
     },
-    { 
-      value: 'classic', 
-      label: 'Classic', 
+    {
+      value: 'classic',
+      label: 'Classic',
       description: 'Traditional and formal',
       preview: 'bg-gradient-to-br from-blue-500 to-blue-700'
     },
-    { 
-      value: 'creative', 
-      label: 'Creative', 
+    {
+      value: 'creative',
+      label: 'Creative',
       description: 'Bold and vibrant',
       preview: 'bg-gradient-to-br from-purple-500 to-pink-500'
     },
-    { 
-      value: 'professional', 
-      label: 'Professional', 
+    {
+      value: 'professional',
+      label: 'Professional',
       description: 'Corporate and sleek',
       preview: 'bg-gradient-to-br from-gray-700 to-gray-900'
     },
-    { 
-      value: 'educational', 
-      label: 'Educational', 
+    {
+      value: 'educational',
+      label: 'Educational',
       description: 'Friendly and engaging',
       preview: 'bg-gradient-to-br from-green-500 to-teal-600'
     },
-    { 
-      value: 'minimal', 
-      label: 'Minimal', 
+    {
+      value: 'minimal',
+      label: 'Minimal',
       description: 'Simple and elegant',
       preview: 'bg-gradient-to-br from-slate-400 to-slate-600'
     }
@@ -116,7 +116,7 @@ const WeavePage: React.FC = () => {
         {/* Header Section */}
         <div className="mb-6 sm:mb-8 text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-800 mb-2 sm:mb-3">
-            Create Your <span className="text-orange-400">Presentation</span> with Weave
+            <span className="text-orange-400">Weave</span> Your Best-in-Class Presentation
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
             AI-powered personalized presentations for educators in 22+ Indian languages
@@ -153,8 +153,8 @@ const WeavePage: React.FC = () => {
               </svg>
               Language
             </label>
-            <select 
-              value={selectedLanguage} 
+            <select
+              value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
               className="w-full px-3 py-2.5 bg-white border-2 border-orange-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent text-gray-700 transition-all"
             >
@@ -172,8 +172,8 @@ const WeavePage: React.FC = () => {
               </svg>
               Style
             </label>
-            <select 
-              value={presentationStyle} 
+            <select
+              value={presentationStyle}
               onChange={(e) => setPresentationStyle(e.target.value)}
               className="w-full px-3 py-2.5 bg-white border-2 border-orange-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent text-gray-700 transition-all"
             >
@@ -191,8 +191,8 @@ const WeavePage: React.FC = () => {
               </svg>
               Audience
             </label>
-            <select 
-              value={targetAudience} 
+            <select
+              value={targetAudience}
               onChange={(e) => setTargetAudience(e.target.value)}
               className="w-full px-3 py-2.5 bg-white border-2 border-orange-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent text-gray-700 transition-all"
             >
@@ -236,11 +236,10 @@ const WeavePage: React.FC = () => {
                 <button
                   key={template.value}
                   onClick={() => setSelectedTemplate(template.value)}
-                  className={`relative p-4 sm:p-5 rounded-xl border-2 transition-all transform hover:scale-105 ${
-                    selectedTemplate === template.value
-                      ? 'border-orange-400 bg-orange-50 shadow-lg'
-                      : 'border-orange-200 bg-white hover:border-orange-300 hover:bg-orange-50/50'
-                  }`}
+                  className={`relative p-4 sm:p-5 rounded-xl border-2 transition-all transform hover:scale-105 ${selectedTemplate === template.value
+                    ? 'border-orange-400 bg-orange-50 shadow-lg'
+                    : 'border-orange-200 bg-white hover:border-orange-300 hover:bg-orange-50/50'
+                    }`}
                 >
                   <div className={`w-full aspect-video rounded-lg mb-3 ${template.preview}`}></div>
                   <h3 className="font-semibold text-xs sm:text-sm text-gray-800 mb-1">{template.label}</h3>
@@ -351,8 +350,8 @@ const WeavePage: React.FC = () => {
                   </svg>
                   AI Model
                 </label>
-                <select 
-                  value={selectedModel} 
+                <select
+                  value={selectedModel}
                   onChange={(e) => setSelectedModel(e.target.value)}
                   className="w-full sm:w-auto min-w-[200px] px-3 py-2.5 bg-white border-2 border-orange-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent text-gray-700 transition-all"
                 >
@@ -364,11 +363,10 @@ const WeavePage: React.FC = () => {
               <button
                 onClick={handleGenerate}
                 disabled={isGenerating || !topic.trim()}
-                className={`px-6 sm:px-8 py-3 sm:py-3.5 rounded-full font-semibold text-sm sm:text-base shadow-md transition-all transform w-full sm:w-auto ${
-                  isGenerating || !topic.trim()
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-orange-400 text-white hover:bg-orange-500 hover:shadow-lg hover:scale-105'
-                }`}
+                className={`px-6 sm:px-8 py-3 sm:py-3.5 rounded-full font-semibold text-sm sm:text-base shadow-md transition-all transform w-full sm:w-auto ${isGenerating || !topic.trim()
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-orange-400 text-white hover:bg-orange-500 hover:shadow-lg hover:scale-105'
+                  }`}
               >
                 {isGenerating ? (
                   <span className="flex items-center justify-center gap-2">
@@ -397,7 +395,7 @@ const WeavePage: React.FC = () => {
                   </svg>
                 </div>
                 <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-800 mb-3">
-                  <span className="text-orange-400">Enter Topic</span> to Generate Presentation
+                  <span className="text-orange-400">Enter Your Topic</span> to Generate Presentation
                 </h3>
                 <p className="text-sm sm:text-base text-gray-600 max-w-md mx-auto leading-relaxed">
                   Fill in the details above and click "Generate Presentation" to create your personalized slides.
@@ -417,7 +415,7 @@ const WeavePage: React.FC = () => {
                     <span className="px-2.5 py-1 bg-orange-50 border border-orange-200 rounded-full">{templates.find(t => t.value === selectedTemplate)?.label}</span>
                   </div>
                 </div>
-                
+
                 {/* Slide Preview Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
                   {Array.from({ length: numSlides }).map((_, index) => (

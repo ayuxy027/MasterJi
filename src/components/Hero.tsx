@@ -75,8 +75,8 @@ const Herobox = () => {
                         <h3 className="text-base sm:text-lg font-semibold text-gray-800 leading-relaxed mb-2 sm:mb-3">
                             Transform Your Study <br /> Materials with AI
                         </h3>
-                        <Link to="/lmr" className="inline-block bg-orange-400 text-white border-2 border-orange-400 font-semibold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm hover:bg-orange-500 hover:border-orange-500 transition-all duration-300 w-fit">
-                            Try LMR Tools →
+                        <Link to="/posters" className="inline-block bg-orange-400 text-white border-2 border-orange-400 font-semibold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm hover:bg-orange-500 hover:border-orange-500 transition-all duration-300 w-fit">
+                            Try Generating Posters →
                         </Link>
                     </div>
 
