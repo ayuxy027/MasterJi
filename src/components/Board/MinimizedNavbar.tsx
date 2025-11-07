@@ -63,8 +63,8 @@ const MinimizedNavbar: React.FC<MinimizedNavbarProps> = ({ isExpanded, onToggle 
               <a
                 href="/chat"
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive('/chat')
-                    ? 'bg-orange-400 text-white font-semibold shadow-md'
-                    : 'text-orange-500 hover:bg-orange-50'
+                  ? 'bg-orange-400 text-white font-semibold shadow-md'
+                  : 'text-orange-500 hover:bg-orange-50'
                   }`}
                 onClick={(e) => {
                   e.preventDefault();
@@ -85,8 +85,8 @@ const MinimizedNavbar: React.FC<MinimizedNavbarProps> = ({ isExpanded, onToggle 
               <a
                 href="/lmr"
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive('/lmr')
-                    ? 'bg-orange-400 text-white font-semibold shadow-md'
-                    : 'text-orange-500 hover:bg-orange-50'
+                  ? 'bg-orange-400 text-white font-semibold shadow-md'
+                  : 'text-orange-500 hover:bg-orange-50'
                   }`}
                 onClick={(e) => {
                   e.preventDefault();
@@ -102,8 +102,8 @@ const MinimizedNavbar: React.FC<MinimizedNavbarProps> = ({ isExpanded, onToggle 
               <a
                 href="/weave"
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive('/weave')
-                    ? 'bg-orange-400 text-white font-semibold shadow-md'
-                    : 'text-orange-500 hover:bg-orange-50'
+                  ? 'bg-orange-400 text-white font-semibold shadow-md'
+                  : 'text-orange-500 hover:bg-orange-50'
                   }`}
                 onClick={(e) => {
                   e.preventDefault();
@@ -120,8 +120,8 @@ const MinimizedNavbar: React.FC<MinimizedNavbarProps> = ({ isExpanded, onToggle 
               <a
                 href="/board"
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive('/board')
-                    ? 'bg-orange-400 text-white font-semibold shadow-md'
-                    : 'text-orange-500 hover:bg-orange-50'
+                  ? 'bg-orange-400 text-white font-semibold shadow-md'
+                  : 'text-orange-500 hover:bg-orange-50'
                   }`}
                 onClick={(e) => {
                   e.preventDefault();
