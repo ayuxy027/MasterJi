@@ -98,10 +98,10 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
     <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-[margin] duration-500 ease-out ${sidebarOpen ? 'ml-[80px]' : 'ml-[10px]'}`}>
       <div className="relative">
         {/* Outer gradient border for premium matte ring */}
-        <div className="rounded-2xl bg-transparent">
+        <div className="rounded-2xl bg-gradient-to-br from-orange-100/50 to-orange-50/30 p-[2px] shadow-xl border border-orange-200/60">
           {/* Inner frosted glass panel */}
           <div
-            className="rounded-2xl px-6 py-4 backdrop-blur-3xl bg-transparent"
+            className="rounded-2xl px-6 py-4 backdrop-blur-xl bg-white/90 shadow-lg"
           >
             <div className="flex items-center justify-between gap-8">
               {/* Left Section - Primary Tools */}
@@ -113,13 +113,16 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                     <button
                       key={tool.id}
                       onClick={() => onToolChange(tool.id)}
-                      className={`group flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-300 ease-out focus:outline-none ${isActive ? 'bg-orange-100 text-orange-600 shadow-[0_8px_24px_rgba(249,115,22,0.15)]' : 'text-orange-500 hover:bg-orange-50'
-                        }`}
+                      className={`group flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-300 ease-out focus:outline-none ${
+                        isActive 
+                          ? 'bg-orange-400 text-white shadow-[0_8px_24px_rgba(249,115,22,0.25)]' 
+                          : 'text-orange-500 hover:bg-orange-50'
+                      }`}
                       title={tool.label}
-                      style={{ transform: isActive ? 'translateY(-1px)' : 'translateY(0px)' }}
+                      style={{ transform: isActive ? 'translateY(-2px)' : 'translateY(0px)' }}
                     >
                       <IconComponent size={18} />
-                      <span className="text-[11px] leading-none font-medium opacity-80">{tool.label}</span>
+                      <span className={`text-[11px] leading-none font-medium ${isActive ? 'text-white' : 'opacity-80'}`}>{tool.label}</span>
                     </button>
                   );
                 })}
@@ -128,16 +131,20 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                 <div className="relative" ref={overflowRef}>
                   <button
                     onClick={() => setIsOverflowOpen((v) => !v)}
-                    className="ml-1 flex items-center gap-1 px-3 py-2 rounded-xl text-orange-500 hover:bg-orange-50 transition-all duration-300"
+                    className={`ml-1 flex items-center gap-1 px-3 py-2 rounded-xl transition-all duration-300 ${
+                      isOverflowOpen 
+                        ? 'bg-orange-400 text-white shadow-md' 
+                        : 'text-orange-500 hover:bg-orange-50'
+                    }`}
                     title="More tools"
                   >
-                    <LuChevronDown size={16} />
+                    <LuChevronDown size={16} className={isOverflowOpen ? 'rotate-180 transition-transform' : ''} />
                     <span className="text-[11px] font-medium opacity-80">More</span>
                   </button>
 
                   {isOverflowOpen && (
                     <div
-                      className="absolute bottom-12 left-0 min-w-[160px] rounded-xl p-2 backdrop-blur-3xl bg-white/95 shadow-xl border border-orange-200"
+                      className="absolute bottom-12 left-0 min-w-[160px] rounded-xl p-2 backdrop-blur-xl bg-white/95 shadow-xl border border-orange-200/60"
                       ref={overflowRef}
                     >
                       <div className="grid grid-cols-3 gap-2">
@@ -161,8 +168,11 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                                   setIsOverflowOpen(false);
                                 }
                               }}
-                              className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-all ${isActive ? 'bg-orange-100 text-orange-600' : 'text-orange-500 hover:bg-orange-50'
-                                }`}
+                              className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-all ${
+                                isActive 
+                                  ? 'bg-orange-400 text-white shadow-md' 
+                                  : 'text-orange-500 hover:bg-orange-50'
+                              }`}
                               title={tool.label}
                             >
                               <Icon size={18} />
@@ -178,16 +188,16 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                   {isQueryPanelOpen && (
                     <div
                       ref={queryPanelRef}
-                      className="absolute bottom-12 left-0 w-80 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-orange-200 p-4 z-[60]"
+                      className="absolute bottom-12 left-0 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-orange-200/60 p-4 z-[60]"
                     >
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <Bot size={20} className="text-orange-500" />
-                          <h3 className="text-sm font-semibold text-orange-600">Generate Cards</h3>
+                          <h3 className="text-sm font-semibold text-gray-800">Generate Cards</h3>
                         </div>
                         <button
                           onClick={() => setIsQueryPanelOpen(false)}
-                          className="text-orange-500 hover:text-orange-600 transition-colors"
+                          className="text-gray-500 hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded-lg"
                           title="Close"
                         >
                           <X size={18} />
@@ -199,14 +209,14 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                           value={query}
                           onChange={(e) => setQuery?.(e.target.value)}
                           placeholder="Type your query to generate cards..."
-                          className="w-full px-3 py-2 bg-transparent border border-orange-200 rounded-lg outline-none text-orange-900 placeholder-orange-400 resize-none focus:border-orange-400 transition-colors"
+                          className="w-full px-3 py-2 bg-white border-2 border-orange-200 rounded-lg outline-none text-gray-800 placeholder-gray-400 resize-none focus:border-orange-400 focus:ring-2 focus:ring-orange-400/20 transition-all"
                           rows={4}
                           disabled={isLoading}
                         />
                         <button
                           type="submit"
                           disabled={isLoading || !query.trim()}
-                          className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold flex items-center justify-center gap-2"
+                          className="w-full px-4 py-2 bg-orange-400 text-white rounded-lg hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                         >
                           {isLoading ? (
                             <>
@@ -228,13 +238,13 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                   {isToolbarOpen && (
                     <div
                       ref={toolbarRef}
-                      className="absolute bottom-12 left-0 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-orange-200 p-3 z-[60]"
+                      className="absolute bottom-12 left-0 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-orange-200/60 p-3 z-[60]"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-sm font-semibold text-orange-600">Content Modes</h3>
+                        <h3 className="text-sm font-semibold text-gray-800">Content Modes</h3>
                         <button
                           onClick={() => setIsToolbarOpen(false)}
-                          className="text-orange-500 hover:text-orange-600 transition-colors"
+                          className="text-gray-500 hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded-lg"
                           title="Close"
                         >
                           <X size={16} />
@@ -251,14 +261,15 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                                 onToolbarOptionChange?.(option.id);
                                 setIsToolbarOpen(false);
                               }}
-                              className={`group flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-300 ease-out focus:outline-none ${isActive
-                                      ? 'bg-orange-100 text-orange-600 shadow-[0_8px_24px_rgba(249,115,22,0.15)]'
-                                      : 'text-orange-500 hover:bg-orange-50'
-                                  }`}
+                              className={`group flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-300 ease-out focus:outline-none ${
+                                isActive
+                                  ? 'bg-orange-400 text-white shadow-[0_8px_24px_rgba(249,115,22,0.25)]'
+                                  : 'text-orange-500 hover:bg-orange-50'
+                              }`}
                               style={{ transform: isActive ? 'translateY(-1px)' : 'translateY(0px)' }}
                             >
                               <IconComponent size={14} />
-                              <span className="text-xs font-medium opacity-80">{option.label}</span>
+                              <span className="text-xs font-medium">{option.label}</span>
                             </button>
                           );
                         })}
@@ -277,7 +288,7 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                     type="button"
                     aria-label="Pick color"
                     onClick={() => colorInputRef.current?.click()}
-                    className="w-[18px] h-[18px] rounded-full border border-orange-300 cursor-pointer shadow-sm hover:shadow-md transition-shadow"
+                    className="w-[24px] h-[24px] rounded-full border-2 border-orange-300 cursor-pointer shadow-sm hover:shadow-md transition-all hover:scale-110"
                     style={{ backgroundColor: currentColor }}
                   />
                   <input
@@ -298,7 +309,7 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                     max="20"
                     value={strokeWidth}
                     onChange={(e) => onStrokeWidthChange(Number(e.target.value))}
-                    className="w-24 accent-orange-500"
+                    className="w-24 accent-orange-500 cursor-pointer"
                   />
                   <span className="text-sm text-orange-500 w-6 font-semibold tabular-nums">{strokeWidth}</span>
                 </div>
@@ -308,7 +319,7 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={onUndo}
-                  className="flex items-center gap-2 px-3 py-2 text-orange-500 hover:bg-orange-50 rounded-xl transition-all duration-300"
+                  className="flex items-center gap-2 px-3 py-2 text-orange-500 hover:bg-orange-50 rounded-xl transition-all duration-300 hover:scale-105"
                   title="Undo"
                 >
                   <LuRotateCcw size={16} />
@@ -316,7 +327,7 @@ const CanvasDock: React.FC<CanvasDockProps> = ({
                 </button>
                 <button
                   onClick={onClear}
-                  className="flex items-center gap-2 px-3 py-2 text-orange-500 hover:bg-orange-50 rounded-xl transition-all duration-300"
+                  className="flex items-center gap-2 px-3 py-2 text-orange-500 hover:bg-orange-50 rounded-xl transition-all duration-300 hover:scale-105"
                   title="Clear Canvas"
                 >
                   <LuTrash2 size={16} />

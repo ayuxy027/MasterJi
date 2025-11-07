@@ -373,13 +373,18 @@ const BoardPage: React.FC = () => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
 
-    // Get canvas bounding rect (already accounts for container transform visually)
+    // Get canvas bounding rect (accounts for container CSS transform)
     const rect = canvas.getBoundingClientRect();
     // Convert screen coordinates to canvas coordinates
-    // The container has CSS transform, so rect already accounts for viewOffset
-    // We just need to convert from screen space (with zoom) to canvas space
-    const x = (e.clientX - rect.left) / zoom;
-    const y = (e.clientY - rect.top) / zoom;
+    // Container CSS: translate(viewOffset) scale(zoom) - moves canvas visually
+    // Canvas context: translate(viewOffset) scale(zoom) - transforms drawing coords
+    // Mouse position relative to canvas visual position (after CSS transform)
+    const relativeX = e.clientX - rect.left;
+    const relativeY = e.clientY - rect.top;
+    // Convert to canvas coordinate space (accounting for CSS scale)
+    // Since context also translates by viewOffset, we get coords relative to (0,0)
+    const x = relativeX / zoom;
+    const y = relativeY / zoom;
     return { x, y };
   };
 
@@ -800,9 +805,9 @@ const BoardPage: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-gradient-to-b from-orange-50 via-white to-orange-50">
-      {/* Fixed Dotted Background - never zooms */}
-      <DottedBackground />
+    <div className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-orange-50 via-white to-orange-50/30">
+      {/* Infinite Dotted Background - follows viewOffset */}
+      <DottedBackground offsetX={viewOffset.x} offsetY={viewOffset.y} zoom={zoom} />
 
       {/* Minimized Navbar */}
       <MinimizedNavbar
@@ -813,7 +818,7 @@ const BoardPage: React.FC = () => {
       {/* Subtle selection overlay */}
       {currentTool === 'select' && (
         <div className="absolute inset-0 pointer-events-none z-0"
-          style={{ background: 'linear-gradient(0deg, rgba(59,130,246,0.06), rgba(59,130,246,0.06))' }} />
+          style={{ background: 'linear-gradient(0deg, rgba(249,115,22,0.04), rgba(249,115,22,0.04))' }} />
       )}
 
       {/* Custom Cursor */}
@@ -848,8 +853,7 @@ const BoardPage: React.FC = () => {
         );
       })()}
 
-
-      {/* Canvas Container with transform */}
+      {/* Canvas Container - truly infinite with visual pan/zoom */}
       <div
         ref={containerRef}
         className="absolute inset-0 z-10"
@@ -863,7 +867,9 @@ const BoardPage: React.FC = () => {
           className={`absolute inset-0 cursor-none ${isPanning ? 'cursor-grabbing' : ''}`}
           style={{
             cursor: 'none',
-            touchAction: 'none' // Prevent browser scrolling/zooming on touch
+            touchAction: 'none',
+            width: '100%',
+            height: '100%'
           }}
           onMouseDown={handleMouseDown}
           onMouseMove={(e) => {
